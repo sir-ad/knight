@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Knight | Local-First Job Application Autofill</title>
+    <meta
+      name="description"
+      content="Knight is a privacy-first Chrome extension that parses your resume with Ollama, autofills major ATS portals, tracks Gmail updates, and drafts follow-ups."
+    />
+    <meta property="og:title" content="Knight" />
+    <meta
+      property="og:description"
+      content="Local-first Chrome extension for resume parsing, ATS autofill, Gmail tracking, and follow-up drafting."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./assets/icon.svg" />
+    <link rel="icon" href="./assets/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <nav class="topbar">
+          <div class="brand">
+            <img src="./assets/icon.svg" alt="Knight icon" class="brand-icon" />
+            <span>Knight</span>
+          </div>
+          <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#support">Supported sites</a>
+            <a href="#install">Install</a>
+            <a href="https://github.com/sir-ad/knight">GitHub</a>
+          </div>
+        </nav>
+
+        <div class="hero-content">
+          <div class="hero-copy">
+            <p class="eyebrow">Chrome extension • Ollama-first • GitHub Pages</p>
+            <h1>Apply faster without handing your resume to a hosted AI.</h1>
+            <p class="hero-text">
+              Knight parses your resume locally, maps it onto common ATS forms, logs applications,
+              reads Gmail updates with a read-only scope, and drafts follow-ups with Ollama.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="https://github.com/sir-ad/knight">View Repository</a>
+              <a class="button secondary" href="#install">Installation Guide</a>
+            </div>
+            <ul class="hero-points">
+              <li>No cloud resume parsing required</li>
+              <li>Works across major ATS portals and generic forms</li>
+              <li>Tracks confirmations, interviews, rejections, and offers</li>
+            </ul>
+          </div>
+
+          <div class="hero-card">
+            <div class="card-window">
+              <div class="window-top">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="window-body">
+                <div class="metric">
+                  <strong>8+</strong>
+                  <span>ATS families supported</span>
+                </div>
+                <div class="metric">
+                  <strong>100%</strong>
+                  <span>Local-first resume parsing path</span>
+                </div>
+                <div class="metric">
+                  <strong>129</strong>
+                  <span>Passing regression tests</span>
+                </div>
+                <div class="status-list">
+                  <div><b>Resume</b><span>PDF / DOCX / TXT</span></div>
+                  <div><b>Autofill</b><span>Review-first overlay</span></div>
+                  <div><b>Tracking</b><span>Gmail read-only sync</span></div>
+                  <div><b>Follow-up</b><span>Ollama drafted replies</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section id="features" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Workflow</p>
+            <h2>Built around the actual application loop</h2>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card">
+              <h3>1. Parse once</h3>
+              <p>
+                Import your resume as PDF, DOCX, or TXT. Knight extracts a reusable profile locally
+                and stores it in Chrome storage.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>2. Review before fill</h3>
+              <p>
+                On supported career pages, Knight injects a review overlay so you can inspect or
+                edit mapped values before autofill.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>3. Track status drift</h3>
+              <p>
+                Gmail sync classifies confirmation, interview, rejection, and offer emails, then
+                updates the application timeline locally.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>4. Draft the follow-up</h3>
+              <p>
+                When a role stalls, Knight uses your profile plus application history to prepare a
+                concise follow-up draft with Ollama.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="support" class="section support-section">
+          <div class="section-heading">
+            <p class="eyebrow">Coverage</p>
+            <h2>Common job platforms supported first</h2>
+          </div>
+
+          <div class="pill-grid">
+            <span>Workday</span>
+            <span>Greenhouse</span>
+            <span>Lever</span>
+            <span>Naukri</span>
+            <span>iCIMS</span>
+            <span>SmartRecruiters</span>
+            <span>Taleo</span>
+            <span>SuccessFactors</span>
+            <span>Generic fallback</span>
+          </div>
+
+          <p class="support-note">
+            Knight also includes a generic form-mapping fallback for employer-hosted portals that
+            expose standard inputs, labels, placeholders, or aria metadata.
+          </p>
+        </section>
+
+        <section id="install" class="section install-section">
+          <div class="section-heading">
+            <p class="eyebrow">Install</p>
+            <h2>Local dev, packaged release, and GitHub Pages all included</h2>
+          </div>
+
+          <div class="install-layout">
+            <div class="install-card">
+              <h3>Local setup</h3>
+              <pre><code>git clone git@github.com:sir-ad/knight.git
+cd knight/careerflow
+npm install
+npm test -- --runInBand
+npm run build
+</code></pre>
+            </div>
+            <div class="install-card">
+              <h3>Chrome load</h3>
+              <ol>
+                <li>Open <code>chrome://extensions</code></li>
+                <li>Enable Developer Mode</li>
+                <li>Click Load unpacked</li>
+                <li>Select <code>careerflow/build/chrome-mv3-prod</code></li>
+              </ol>
+            </div>
+            <div class="install-card">
+              <h3>Local requirements</h3>
+              <ul>
+                <li>Node.js 20+</li>
+                <li>Ollama running locally</li>
+                <li><code>llama3.2:3b</code> or similar pulled model</li>
+                <li>Optional Google OAuth client for Gmail sync</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section repo-section">
+          <div class="section-heading">
+            <p class="eyebrow">Shipping</p>
+            <h2>Prepared for CI, Pages, and release packaging</h2>
+          </div>
+
+          <div class="repo-grid">
+            <article>
+              <h3>CI</h3>
+              <p>Typecheck, test, build, and package the extension on every push to the main branch.</p>
+            </article>
+            <article>
+              <h3>Pages</h3>
+              <p>This site deploys from the repository via GitHub Actions with no extra hosting layer.</p>
+            </article>
+            <article>
+              <h3>Releases</h3>
+              <p>Tagged releases attach the packaged Chrome extension zip as a downloadable artifact.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>Knight is built for candidates who want less repetition and more control.</p>
+        <div class="footer-links">
+          <a href="https://github.com/sir-ad/knight">GitHub</a>
+          <a href="https://github.com/sir-ad/knight/issues">Issues</a>
+          <a href="https://github.com/sir-ad/knight/blob/main/careerflow/README.md">Extension docs</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

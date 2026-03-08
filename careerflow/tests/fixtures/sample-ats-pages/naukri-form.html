@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apply for Job - Naukri.com</title>
+</head>
+<body>
+  <div id="nk-app">
+    <header class="nk-header">
+      <div class="nk-logo">
+        <a href="/">Naukri.com</a>
+      </div>
+      <nav class="nk-nav">
+        <a href="/jobs">Search Jobs</a>
+        <a href="/profile">My Naukri</a>
+        <a href="/applications">Applied Jobs</a>
+      </nav>
+    </header>
+
+    <main class="nk-main">
+      <div class="nk-job-header">
+        <h1 class="nk-job-title">Senior Software Developer</h1>
+        <div class="nk-company-info">
+          <span class="nk-company-name">Tech Innovations Pvt Ltd</span>
+          <span class="nk-rating">4.2 ★</span>
+        </div>
+        <div class="nk-job-meta">
+          <span class="nk-location">📍 Bangalore / Mumbai / Hyderabad</span>
+          <span class="nk-experience">📋 5-10 years</span>
+          <span class="nk-salary">💰 15-25 LPA</span>
+        </div>
+        <div class="nk-job-tags">
+          <span class="nk-tag">Java</span>
+          <span class="nk-tag">Spring Boot</span>
+          <span class="nk-tag">Microservices</span>
+          <span class="nk-tag">AWS</span>
+        </div>
+      </div>
+
+      <form id="nk-application-form" class="nk-form">
+        <section class="nk-section nk-personal-section">
+          <h2>Personal Details</h2>
+          
+          <div class="nk-row">
+            <div class="nk-field nk-half">
+              <label for="nk-full-name">Full Name *</label>
+              <input type="text" id="nk-full-name" name="candidateName" class="nk-input" required />
+            </div>
+            <div class="nk-field nk-half">
+              <label for="nk-gender">Gender *</label>
+              <select id="nk-gender" name="gender" class="nk-select" required>
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="nk-row">
+            <div class="nk-field nk-half">
+              <label for="nk-email">Email ID *</label>
+              <input type="email" id="nk-email" name="email" class="nk-input" required />
+            </div>
+            <div class="nk-field nk-half">
+              <label for="nk-mobile">Mobile Number *</label>
+              <div class="nk-phone-input">
+                <select id="nk-country-code" name="countryCode" class="nk-select nk-country">
+                  <option value="+91">+91 (India)</option>
+                  <option value="+1">+1 (USA)</option>
+                  <option value="+44">+44 (UK)</option>
+                </select>
+                <input type="tel" id="nk-mobile" name="mobile" class="nk-input nk-mobile-input" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="nk-row">
+            <div class="nk-field nk-half">
+              <label for="nk-dob">Date of Birth</label>
+              <input type="date" id="nk-dob" name="dateOfBirth" class="nk-input" />
+            </div>
+            <div class="nk-field nk-half">
+              <label for="nk-marital-status">Marital Status</label>
+              <select id="nk-marital-status" name="maritalStatus" class="nk-select">
+                <option value="">Select</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="nk-field">
+            <label for="nk-address">Current Address</label>
+            <textarea id="nk-address" name="address" class="nk-textarea" rows="3"></textarea>
+          </div>
+
+          <div class="nk-row">
+            <div class="nk-field nk-third">
+              <label for="nk-city">City *</label>
+              <input type="text" id="nk-city" name="city" class="nk-input" required />
+            </div>
+            <div class="nk-field nk-third">
+              <label for="nk-state">State *</label>
+              <select id="nk-state" name="state" class="nk-select" required>
+                <option value="">Select</option>
+                <option value="karnataka">Karnataka</option>
+                <option value="maharashtra">Maharashtra</option>
+                <option value="telangana">Telangana</option>
+                <option value="delhi">Delhi</option>
+                <option value="tamil-nadu">Tamil Nadu</option>
+              </select>
+            </div>
+            <div class="nk-field nk-third">
+              <label for="nk-pincode">Pincode *</label>
+              <input type="text" id="nk-pincode" name="pincode" class="nk-input" pattern="[0-9]{6}" maxlength="6" required />
+            </div>
+          </div>
+
+          <div class="nk-field">
+            <label for="nk-home-city">Home Town/City</label>
+            <input type="text" id="nk-home-city" name="homeCity" class="nk-input" />
+          </div>
+        </section>
+
+        <section class="nk-section nk-education-section">
+          <h2>Education Details</h2>
+
+          <div class="nk-entry" data-index="0">
+            <h3>Basic Education (Graduation)</h3>
+            <div class="nk-row">
+              <div class="nk-field nk-half">
+                <label for="nk-ug-course">Course *</label>
+                <select id="nk-ug-course" name="education[0][course]" class="nk-select" required>
+                  <option value="">Select Course</option>
+                  <option value="btech">B.Tech/B.E.</option>
+                  <option value="bsc">B.Sc</option>
+                  <option value="bca">BCA</option>
+                  <option value="bba">BBA</option>
+                  <option value="ba">BA</option>
+                  <option value="bcom">B.Com</option>
+                </select>
+              </div>
+              <div class="nk-field nk-half">
+                <label for="nk-ug-specialization">Specialization *</label>
+                <select id="nk-ug-specialization" name="education[0][specialization]" class="nk-select" required>
+                  <option value="">Select Specialization</option>
+                  <option value="computer-science">Computer Science</option>
+                  <option value="information-technology">Information Technology</option>
+                  <option value="electronics">Electronics & Communication</option>
+                  <option value="electrical">Electrical Engineering</option>
+                  <option value="mechanical">Mechanical Engineering</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="nk-row">
+              <div class="nk-field nk-half">
+                <label for="nk-ug-institute">Institute/College *</label>
+                <input type="text" id="nk-ug-institute" name="education[0][institute]" class="nk-input" required />
+              </div>
+              <div class="nk-field nk-quarter">
+                <label for="nk-ug-university">University</label>
+                <input type="text" id="nk-ug-university" name="education[0][university]" class="nk-input" />
+              </div>
+              <div class="nk-field nk-quarter">
+                <label for="nk-ug-year">Passing Year *</label>
+                <select id="nk-ug-year" name="education[0][passingYear]" class="nk-select" required>
+                  <option value="">Select</option>
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="2020">2020</option>
+                  <option value="2019">2019</option>
+                  <option value="2018">2018</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="nk-row">
+              <div class="nk-field nk-third">
+                <label for="nk-ug-type">Course Type</label>
+                <select id="nk-ug-type" name="education[0][courseType]" class="nk-select">
+                  <option value="">Select</option>
+                  <option value="full-time">Full Time</option>
+                  <option value="part-time">Part Time</option>
+                  <option value="correspondence">Correspondence</option>
+                </select>
+              </div>
+              <div class="nk-field nk-third">
+                <label for="nk-ug-percentage">Percentage/CGPA</label>
+                <input type="text" id="nk-ug-percentage" name="education[0][percentage]" class="nk-input" placeholder="e.g., 75% or 8.5 CGPA" />
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="nk-add-btn" id="nk-add-education">+ Add Post Graduation</button>
+        </section>
+
+        <section class="nk-section nk-experience-section">
+          <h2>Work Experience</h2>
+
+          <div class="nk-entry" data-index="0">
+            <div class="nk-row">
+              <div class="nk-field nk-half">
+                <label for="nk-exp-company-0">Company Name *</label>
+                <input type="text" id="nk-exp-company-0" name="experience[0][company]" class="nk-input" required />
+              </div>
+              <div class="nk-field nk-half">
+                <label for="nk-exp-title-0">Designation *</label>
+                <input type="text" id="nk-exp-title-0" name="experience[0][title]" class="nk-input" required />
+              </div>
+            </div>
+
+            <div class="nk-row">
+              <div class="nk-field nk-third">
+                <label for="nk-exp-start-month-0">From Month *</label>
+                <select id="nk-exp-start-month-0" name="experience[0][startMonth]" class="nk-select" required>
+                  <option value="">Month</option>
+                  <option value="01">January</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+              </div>
+              <div class="nk-field nk-third">
+                <label for="nk-exp-start-year-0">From Year *</label>
+                <select id="nk-exp-start-year-0" name="experience[0][startYear]" class="nk-select" required>
+                  <option value="">Year</option>
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="2020">2020</option>
+                  <option value="2019">2019</option>
+                  <option value="2018">2018</option>
+                  <option value="2017">2017</option>
+                </select>
+              </div>
+              <div class="nk-field nk-third">
+                <label for="nk-exp-end-year-0">To Year</label>
+                <select id="nk-exp-end-year-0" name="experience[0][endYear]" class="nk-select">
+                  <option value="">Present</option>
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="nk-field nk-checkbox">
+              <input type="checkbox" id="nk-current-0" name="experience[0][current]" checked />
+              <label for="nk-current-0">Currently working here</label>
+            </div>
+
+            <div class="nk-field">
+              <label for="nk-exp-location-0">Location</label>
+              <input type="text" id="nk-exp-location-0" name="experience[0][location]" class="nk-input" />
+            </div>
+
+            <div class="nk-row">
+              <div class="nk-field nk-half">
+                <label for="nk-exp-industry-0">Industry</label>
+                <select id="nk-exp-industry-0" name="experience[0][industry]" class="nk-select">
+                  <option value="">Select Industry</option>
+                  <option value="it-software">IT-Software</option>
+                  <option value="it-hardware">IT-Hardware</option>
+                  <option value="banking">Banking</option>
+                  <option value="consulting">Consulting</option>
+                  <option value="ecommerce">E-Commerce</option>
+                </select>
+              </div>
+              <div class="nk-field nk-half">
+                <label for="nk-exp-functional-area-0">Functional Area</label>
+                <select id="nk-exp-functional-area-0" name="experience[0][functionalArea]" class="nk-select">
+                  <option value="">Select Area</option>
+                  <option value="development">IT Software - Application Programming</option>
+                  <option value="testing">IT Software - QA & Testing</option>
+                  <option value="db-admin">IT Software - DB Administration</option>
+                  <option value="networking">IT Software - Networking</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="nk-field">
+              <label for="nk-exp-salary-0">Annual Salary (Lakhs)</label>
+              <div class="nk-salary-input">
+                <input type="number" id="nk-exp-salary-0" name="experience[0][salaryLakhs]" class="nk-input" step="0.1" min="0" placeholder="e.g., 15" />
+                <span class="nk-salary-unit">LPA</span>
+              </div>
+            </div>
+
+            <div class="nk-field">
+              <label for="nk-exp-description-0">Job Description</label>
+              <textarea id="nk-exp-description-0" name="experience[0][description]" class="nk-textarea" rows="4"></textarea>
+            </div>
+
+            <div class="nk-field">
+              <label for="nk-exp-notice-0">Notice Period</label>
+              <select id="nk-exp-notice-0" name="experience[0][noticePeriod]" class="nk-select">
+                <option value="">Select</option>
+                <option value="immediate">Immediate</option>
+                <option value="15-days">15 Days</option>
+                <option value="30-days">30 Days</option>
+                <option value="60-days">60 Days</option>
+                <option value="90-days">90 Days</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="button" class="nk-add-btn" id="nk-add-experience">+ Add Another Experience</button>
+        </section>
+
+        <section class="nk-section nk-skills-section">
+          <h2>Key Skills</h2>
+          
+          <div class="nk-field">
+            <label for="nk-skills">IT Skills *</label>
+            <div class="nk-skills-container" id="nk-skills-container">
+              <input type="text" id="nk-skills" name="skills" class="nk-input" placeholder="Type skill and press Enter" />
+            </div>
+            <p class="nk-hint">Add skills like Java, Python, React, etc. (Press Enter after each skill)</p>
+          </div>
+
+          <div class="nk-field">
+            <label for="nk-total-exp">Total Experience (in years) *</label>
+            <div class="nk-experience-range">
+              <select id="nk-total-exp-years" name="totalExperienceYears" class="nk-select" required>
+                <option value="">Years</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10+</option>
+              </select>
+              <select id="nk-total-exp-months" name="totalExperienceMonths" class="nk-select" required>
+                <option value="">Months</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="nk-section nk-resume-section">
+          <h2>Upload Resume</h2>
+          
+          <div class="nk-field">
+            <label for="nk-resume">Resume/CV *</label>
+            <div class="nk-upload-box">
+              <input type="file" id="nk-resume" name="resume" accept=".doc,.docx,.pdf,.rtf" required />
+              <div class="nk-upload-content">
+                <span class="nk-upload-icon">📄</span>
+                <p>Click to upload or drag and drop</p>
+                <p class="nk-upload-hint">DOC, DOCX, PDF, RTF (Max 500KB)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="nk-field">
+            <label for="nk-resume-headline">Resume Headline</label>
+            <input type="text" id="nk-resume-headline" name="resumeHeadline" class="nk-input" maxlength="100" placeholder="e.g., Senior Java Developer with 8 years experience" />
+            <p class="nk-hint">A brief summary of your profile (max 100 characters)</p>
+          </div>
+        </section>
+
+        <section class="nk-section nk-additional-section">
+          <h2>Additional Information</h2>
+
+          <div class="nk-field">
+            <label for="nk-expected-salary">Expected Annual Salary (Lakhs)</label>
+            <div class="nk-salary-input">
+              <input type="number" id="nk-expected-salary" name="expectedSalary" class="nk-input" step="0.1" min="0" placeholder="e.g., 20" />
+              <span class="nk-salary-unit">LPA</span>
+            </div>
+          </div>
+
+          <div class="nk-row">
+            <div class="nk-field nk-half">
+              <label for="nk-preferred-location">Preferred Work Location</label>
+              <select id="nk-preferred-location" name="preferredLocation" class="nk-select">
+                <option value="">Select</option>
+                <option value="bangalore">Bangalore</option>
+                <option value="mumbai">Mumbai</option>
+                <option value="hyderabad">Hyderabad</option>
+                <option value="delhi-ncr">Delhi NCR</option>
+                <option value="pune">Pune</option>
+                <option value="chennai">Chennai</option>
+                <option value="remote">Remote</option>
+              </select>
+            </div>
+            <div class="nk-field nk-half">
+              <label for="nk-employement-type">Employment Type Preferred</label>
+              <select id="nk-employement-type" name="employmentType" class="nk-select">
+                <option value="">Select</option>
+                <option value="permanent">Permanent</option>
+                <option value="contract">Contract</option>
+                <option value="both">Both</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="nk-row">
+            <div class="nk-field nk-half">
+              <label for="nk-work-mode">Work Mode Preferred</label>
+              <select id="nk-work-mode" name="workMode" class="nk-select">
+                <option value="">Select</option>
+                <option value="onsite">Work from Office</option>
+                <option value="remote">Work from Home</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </div>
+            <div class="nk-field nk-half">
+              <label for="nk-shift-preference">Shift Preference</label>
+              <select id="nk-shift-preference" name="shiftPreference" class="nk-select">
+                <option value="">Select</option>
+                <option value="day">Day Shift</option>
+                <option value="night">Night Shift</option>
+                <option value="flexible">Flexible</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="nk-section nk-declaration-section">
+          <h2>Declaration</h2>
+          
+          <div class="nk-declaration-text">
+            <p>I hereby declare that the information furnished above is true to the best of my knowledge. I understand that in the event of any information being found false or incorrect, my candidature is liable to be cancelled.</p>
+          </div>
+
+          <div class="nk-field nk-checkbox">
+            <input type="checkbox" id="nk-declaration" name="declaration" required />
+            <label for="nk-declaration">I agree to the above declaration *</label>
+          </div>
+
+          <div class="nk-field nk-checkbox">
+            <input type="checkbox" id="nk-terms" name="terms" required />
+            <label for="nk-terms">I agree to the <a href="/terms" target="_blank">Terms & Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a> *</label>
+          </div>
+        </section>
+
+        <div class="nk-actions">
+          <button type="button" class="nk-btn nk-btn-secondary">Preview Application</button>
+          <button type="submit" class="nk-btn nk-btn-primary">Submit Application</button>
+        </div>
+      </form>
+    </main>
+
+    <footer class="nk-footer">
+      <div class="nk-footer-links">
+        <a href="/about">About Us</a>
+        <a href="/contact">Contact</a>
+        <a href="/help">Help</a>
+        <a href="/report-spam">Report Spam</a>
+      </div>
+      <p class="nk-copyright">&copy; 2024 Naukri.com - All rights reserved. Info Edge (India) Ltd.</p>
+    </footer>
+  </div>
+</body>
+</html>

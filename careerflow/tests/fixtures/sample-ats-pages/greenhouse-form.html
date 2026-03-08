@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apply for Job - Greenhouse</title>
+</head>
+<body>
+  <div id="gh-app">
+    <header class="gh-header">
+      <div class="gh-logo">
+        <a href="/careers">Company Careers</a>
+      </div>
+      <nav class="gh-nav">
+        <a href="/jobs">All Jobs</a>
+        <a href="/profile">My Applications</a>
+      </nav>
+    </header>
+
+    <main class="gh-main">
+      <div class="gh-job-header">
+        <h1>Software Engineer - Full Stack</h1>
+        <div class="gh-job-meta">
+          <span class="gh-location">San Francisco, CA</span>
+          <span class="gh-department">Engineering</span>
+          <span class="gh-type">Full-time</span>
+        </div>
+      </div>
+
+      <form id="gh-application-form" class="gh-form" data-job-id="456789">
+        <section class="gh-section gh-profile-section">
+          <h2>Your Profile</h2>
+          
+          <div class="gh-row">
+            <div class="gh-field gh-half">
+              <label for="gh-first-name">First Name *</label>
+              <input type="text" id="gh-first-name" name="candidate[first_name]" class="gh-input" required />
+            </div>
+            <div class="gh-field gh-half">
+              <label for="gh-last-name">Last Name *</label>
+              <input type="text" id="gh-last-name" name="candidate[last_name]" class="gh-input" required />
+            </div>
+          </div>
+
+          <div class="gh-row">
+            <div class="gh-field gh-half">
+              <label for="gh-email">Email *</label>
+              <input type="email" id="gh-email" name="candidate[email]" class="gh-input" required />
+            </div>
+            <div class="gh-field gh-half">
+              <label for="gh-phone">Phone</label>
+              <input type="tel" id="gh-phone" name="candidate[phone]" class="gh-input" />
+            </div>
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-location">Current Location</label>
+            <input type="text" id="gh-location" name="candidate[location]" class="gh-input" placeholder="City, State/Country" />
+          </div>
+
+          <div class="gh-row">
+            <div class="gh-field gh-half">
+              <label for="gh-linkedin">LinkedIn URL</label>
+              <input type="url" id="gh-linkedin" name="candidate[linkedin_url]" class="gh-input" placeholder="https://linkedin.com/in/..." />
+            </div>
+            <div class="gh-field gh-half">
+              <label for="gh-website">Personal Website</label>
+              <input type="url" id="gh-website" name="candidate[website_url]" class="gh-input" placeholder="https://..." />
+            </div>
+          </div>
+        </section>
+
+        <section class="gh-section gh-resume-section">
+          <h2>Resume/CV</h2>
+          
+          <div class="gh-field">
+            <label for="gh-resume">Upload Resume *</label>
+            <div class="gh-upload-area" id="gh-resume-dropzone">
+              <input type="file" id="gh-resume" name="resume" accept=".pdf,.doc,.docx,.txt" required />
+              <div class="gh-upload-placeholder">
+                <span class="gh-upload-icon">📎</span>
+                <p>Drop your resume here or click to upload</p>
+                <p class="gh-upload-hint">PDF, DOC, DOCX, or TXT (max 10MB)</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gh-section gh-experience-section">
+          <h2>Work Experience</h2>
+          
+          <div id="gh-experience-container" class="gh-repeatable">
+            <div class="gh-entry" data-index="0">
+              <div class="gh-field">
+                <label for="gh-company-0">Company Name *</label>
+                <input type="text" id="gh-company-0" name="candidate[work_experiences_attributes][0][company_name]" class="gh-input" />
+              </div>
+
+              <div class="gh-field">
+                <label for="gh-title-0">Job Title *</label>
+                <input type="text" id="gh-title-0" name="candidate[work_experiences_attributes][0][title]" class="gh-input" />
+              </div>
+
+              <div class="gh-row">
+                <div class="gh-field gh-half">
+                  <label for="gh-start-month-0">Start Date *</label>
+                  <div class="gh-date-selects">
+                    <select id="gh-start-month-0" name="candidate[work_experiences_attributes][0][start_month]">
+                      <option value="">Month</option>
+                      <option value="1">January</option>
+                      <option value="2">February</option>
+                      <option value="3">March</option>
+                      <option value="4">April</option>
+                      <option value="5">May</option>
+                      <option value="6">June</option>
+                      <option value="7">July</option>
+                      <option value="8">August</option>
+                      <option value="9">September</option>
+                      <option value="10">October</option>
+                      <option value="11">November</option>
+                      <option value="12">December</option>
+                    </select>
+                    <select id="gh-start-year-0" name="candidate[work_experiences_attributes][0][start_year]">
+                      <option value="">Year</option>
+                      <option value="2024">2024</option>
+                      <option value="2023">2023</option>
+                      <option value="2022">2022</option>
+                      <option value="2021">2021</option>
+                      <option value="2020">2020</option>
+                      <option value="2019">2019</option>
+                      <option value="2018">2018</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="gh-field gh-half">
+                  <label for="gh-end-month-0">End Date</label>
+                  <div class="gh-date-selects">
+                    <select id="gh-end-month-0" name="candidate[work_experiences_attributes][0][end_month]">
+                      <option value="">Month</option>
+                      <option value="1">January</option>
+                      <option value="2">February</option>
+                      <option value="3">March</option>
+                      <option value="4">April</option>
+                      <option value="5">May</option>
+                      <option value="6">June</option>
+                      <option value="7">July</option>
+                      <option value="8">August</option>
+                      <option value="9">September</option>
+                      <option value="10">October</option>
+                      <option value="11">November</option>
+                      <option value="12">December</option>
+                    </select>
+                    <select id="gh-end-year-0" name="candidate[work_experiences_attributes][0][end_year]">
+                      <option value="">Year</option>
+                      <option value="2024">2024</option>
+                      <option value="2023">2023</option>
+                      <option value="2022">2022</option>
+                      <option value="2021">2021</option>
+                      <option value="2020">2020</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="gh-field gh-checkbox">
+                <input type="checkbox" id="gh-current-0" name="candidate[work_experiences_attributes][0][current]" value="1" />
+                <label for="gh-current-0">I currently work here</label>
+              </div>
+
+              <div class="gh-field">
+                <label for="gh-description-0">Description</label>
+                <textarea id="gh-description-0" name="candidate[work_experiences_attributes][0][description]" class="gh-textarea" rows="4"></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <button type="button" class="gh-add-btn" id="gh-add-experience">+ Add another job</button>
+        </section>
+
+        <section class="gh-section gh-education-section">
+          <h2>Education</h2>
+          
+          <div id="gh-education-container" class="gh-repeatable">
+            <div class="gh-entry" data-index="0">
+              <div class="gh-field">
+                <label for="gh-school-0">School *</label>
+                <input type="text" id="gh-school-0" name="candidate[educations_attributes][0][school_name]" class="gh-input" />
+              </div>
+
+              <div class="gh-row">
+                <div class="gh-field gh-half">
+                  <label for="gh-degree-0">Degree *</label>
+                  <input type="text" id="gh-degree-0" name="candidate[educations_attributes][0][degree]" class="gh-input" placeholder="e.g., Bachelor's" />
+                </div>
+                <div class="gh-field gh-half">
+                  <label for="gh-discipline-0">Discipline</label>
+                  <input type="text" id="gh-discipline-0" name="candidate[educations_attributes][0][discipline]" class="gh-input" placeholder="e.g., Computer Science" />
+                </div>
+              </div>
+
+              <div class="gh-row">
+                <div class="gh-field gh-half">
+                  <label for="gh-edu-start-year-0">Start Year</label>
+                  <input type="number" id="gh-edu-start-year-0" name="candidate[educations_attributes][0][start_year]" class="gh-input" min="1950" max="2030" />
+                </div>
+                <div class="gh-field gh-half">
+                  <label for="gh-edu-end-year-0">End Year</label>
+                  <input type="number" id="gh-edu-end-year-0" name="candidate[educations_attributes][0][end_year]" class="gh-input" min="1950" max="2030" />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button type="button" class="gh-add-btn" id="gh-add-education">+ Add another school</button>
+        </section>
+
+        <section class="gh-section gh-questions-section">
+          <h2>Additional Questions</h2>
+
+          <div class="gh-field">
+            <label for="gh-salary">What are your salary expectations?</label>
+            <input type="text" id="gh-salary" name="question[12345]" class="gh-input" placeholder="e.g., $150,000 - $180,000" />
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-start-date">When can you start?</label>
+            <input type="date" id="gh-start-date" name="question[12346]" class="gh-input" />
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-visa">Will you now or in the future require sponsorship for employment visa status? *</label>
+            <div class="gh-radio-group">
+              <label class="gh-radio">
+                <input type="radio" name="question[12347]" value="no" required />
+                <span>No</span>
+              </label>
+              <label class="gh-radio">
+                <input type="radio" name="question[12347]" value="yes" required />
+                <span>Yes</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-referral">Were you referred by someone at the company?</label>
+            <input type="text" id="gh-referral" name="question[12348]" class="gh-input" placeholder="Employee name" />
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-hear-about">How did you hear about this job? *</label>
+            <select id="gh-hear-about" name="question[12349]" class="gh-select" required>
+              <option value="">Select an option</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="indeed">Indeed</option>
+              <option value="glassdoor">Glassdoor</option>
+              <option value="referral">Employee Referral</option>
+              <option value="career-fair">Career Fair</option>
+              <option value="company-website">Company Website</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="gh-section gh-demographics-section">
+          <h2>Voluntary Self-Identification (Optional)</h2>
+          <p class="gh-hint">The following information is voluntary and will be used for diversity reporting purposes.</p>
+
+          <div class="gh-field">
+            <label for="gh-gender">Gender</label>
+            <select id="gh-gender" name="demographic[gender]" class="gh-select">
+              <option value="">Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non-binary">Non-binary</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-ethnicity">Race/Ethnicity</label>
+            <select id="gh-ethnicity" name="demographic[ethnicity]" class="gh-select">
+              <option value="">Select</option>
+              <option value="asian">Asian</option>
+              <option value="black">Black or African American</option>
+              <option value="hispanic">Hispanic or Latino</option>
+              <option value="white">White</option>
+              <option value="native">Native American or Alaska Native</option>
+              <option value="islander">Native Hawaiian or Pacific Islander</option>
+              <option value="two-more">Two or more races</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-veteran">Veteran Status</label>
+            <select id="gh-veteran" name="demographic[veteran]" class="gh-select">
+              <option value="">Select</option>
+              <option value="yes">I am a veteran</option>
+              <option value="no">I am not a veteran</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div class="gh-field">
+            <label for="gh-disability">Disability Status</label>
+            <select id="gh-disability" name="demographic[disability]" class="gh-select">
+              <option value="">Select</option>
+              <option value="yes">Yes, I have a disability</option>
+              <option value="no">No, I don't have a disability</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="gh-section gh-submit-section">
+          <div class="gh-field gh-checkbox">
+            <input type="checkbox" id="gh-terms" name="terms" required />
+            <label for="gh-terms">I certify that all information provided is accurate and complete. I understand that any misrepresentation may result in disqualification from consideration. *</label>
+          </div>
+
+          <div class="gh-actions">
+            <button type="button" class="gh-btn gh-btn-outline">Save Draft</button>
+            <button type="submit" class="gh-btn gh-btn-primary">Submit Application</button>
+          </div>
+        </section>
+      </form>
+    </main>
+
+    <footer class="gh-footer">
+      <p>&copy; 2024 Company Name. Powered by <a href="https://greenhouse.io">Greenhouse</a>.</p>
+    </footer>
+  </div>
+</body>
+</html>

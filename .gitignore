@@ -1,0 +1,13 @@
+.DS_Store
+.claude/
+\[Confidentail research docs\]/
+
+careerflow/node_modules/
+careerflow/build/
+careerflow/.plasmo/
+careerflow/coverage/
+careerflow/*.zip
+careerflow/*.crx
+careerflow/*.pem
+
+docs/.DS_Store

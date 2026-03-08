@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: careerflow
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: careerflow/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate
+        run: |
+          npm run typecheck
+          npm test -- --runInBand
+
+      - name: Build and package extension
+        env:
+          PLASMO_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.PLASMO_PUBLIC_GOOGLE_CLIENT_ID }}
+        run: |
+          npm run build
+          npm run package
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: careerflow/build/chrome-mv3-prod.zip
+          generate_release_notes: true

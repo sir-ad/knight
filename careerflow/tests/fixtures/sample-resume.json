@@ -1,0 +1,124 @@
+{
+  "personalInfo": {
+    "firstName": "Alexandra",
+    "lastName": "Chen",
+    "email": "alexandra.chen@email.com",
+    "phone": "+1-415-555-0142",
+    "location": "San Francisco, CA",
+    "linkedin": "https://linkedin.com/in/alexandrachen",
+    "portfolio": "https://alexandrachen.dev"
+  },
+  "summary": "Senior Software Engineer with 8+ years of experience building scalable web applications. Passionate about clean code, mentoring junior developers, and driving technical innovation. Expert in TypeScript, React, and Node.js with a track record of delivering high-impact products.",
+  "workHistory": [
+    {
+      "id": "work-1",
+      "company": "TechCorp Inc.",
+      "title": "Senior Software Engineer",
+      "location": "San Francisco, CA",
+      "startDate": "2021-03",
+      "endDate": "present",
+      "isCurrent": true,
+      "description": "Lead development of microservices architecture serving 2M+ daily users. Architected real-time notification system reducing latency by 40%. Mentored team of 5 junior engineers.",
+      "highlights": [
+        "Reduced API response time from 800ms to 120ms through optimization",
+        "Led migration from monolith to microservices architecture",
+        "Implemented CI/CD pipeline reducing deployment time by 60%",
+        "Introduced comprehensive testing strategy achieving 85% code coverage"
+      ]
+    },
+    {
+      "id": "work-2",
+      "company": "StartupHub",
+      "title": "Software Engineer",
+      "location": "Remote",
+      "startDate": "2018-06",
+      "endDate": "2021-02",
+      "isCurrent": false,
+      "description": "Full-stack development for B2B SaaS platform. Built customer-facing dashboards and internal tools.",
+      "highlights": [
+        "Developed React-based analytics dashboard used by 500+ enterprise clients",
+        "Built RESTful APIs handling 100K daily requests",
+        "Integrated third-party payment processors (Stripe, PayPal)",
+        "Reduced bug reports by 45% through improved error handling"
+      ]
+    },
+    {
+      "id": "work-3",
+      "company": "Digital Agency Co.",
+      "title": "Junior Developer",
+      "location": "Los Angeles, CA",
+      "startDate": "2015-08",
+      "endDate": "2018-05",
+      "isCurrent": false,
+      "description": "Web development for client projects across various industries. Focused on responsive design and performance optimization.",
+      "highlights": [
+        "Delivered 20+ client websites on time and within budget",
+        "Achieved average Lighthouse score of 95+ across projects",
+        "Introduced component-based architecture improving team velocity"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "edu-1",
+      "institution": "University of California, Berkeley",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Berkeley, CA",
+      "startDate": "2011-08",
+      "endDate": "2015-05",
+      "gpa": "3.7",
+      "honors": ["Dean's List", " magna cum laude"],
+      "coursework": [
+        "Data Structures and Algorithms",
+        "Database Systems",
+        "Software Engineering",
+        "Machine Learning Fundamentals",
+        "Computer Networks"
+      ]
+    }
+  ],
+  "skills": {
+    "programming": ["TypeScript", "JavaScript", "Python", "Go", "SQL"],
+    "frameworks": ["React", "Node.js", "Express", "Next.js", "Django"],
+    "databases": ["PostgreSQL", "MongoDB", "Redis", "Elasticsearch"],
+    "cloud": ["AWS", "GCP", "Docker", "Kubernetes", "Terraform"],
+    "tools": ["Git", "Jest", "Webpack", "GraphQL", "CI/CD"],
+    "soft": ["Technical Leadership", "Mentoring", "Agile/Scrum", "Communication", "Problem Solving"]
+  },
+  "certifications": [
+    {
+      "name": "AWS Solutions Architect - Professional",
+      "issuer": "Amazon Web Services",
+      "date": "2022-08",
+      "expiry": "2025-08",
+      "credentialId": "AWS-SAP-123456"
+    },
+    {
+      "name": "Google Cloud Professional Developer",
+      "issuer": "Google Cloud",
+      "date": "2021-11",
+      "expiry": "2024-11",
+      "credentialId": "GCP-PD-789012"
+    }
+  ],
+  "projects": [
+    {
+      "name": "OpenSource CLI Tool",
+      "description": "Developer productivity CLI tool with 2K+ GitHub stars",
+      "technologies": ["Go", "Cobra", "SQLite"],
+      "link": "https://github.com/alexchen/cli-tool"
+    }
+  ],
+  "languages": [
+    { "language": "English", "proficiency": "Native" },
+    { "language": "Mandarin", "proficiency": "Fluent" },
+    { "language": "Spanish", "proficiency": "Intermediate" }
+  ],
+  "metadata": {
+    "source": "manual-entry",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-03-01T14:22:00Z",
+    "version": "1.0"
+  }
+}

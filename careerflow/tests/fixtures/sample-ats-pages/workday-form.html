@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apply for Job - Workday</title>
+</head>
+<body>
+  <div id="app">
+    <header class="wd-header">
+      <img src="logo.png" alt="Company Logo" />
+      <nav class="wd-nav">
+        <a href="/careers">Careers</a>
+        <a href="/profile">My Profile</a>
+      </nav>
+    </header>
+
+    <main class="wd-main">
+      <h1>Apply for: Senior Software Engineer</h1>
+      <p class="job-details">Job ID: JR-2024-12345 | Location: San Francisco, CA</p>
+
+      <form id="application-form" class="wd-form">
+        <section class="wd-section">
+          <h2>Personal Information</h2>
+          
+          <div class="wd-field">
+            <label for="first-name">First Name *</label>
+            <input type="text" id="first-name" name="firstName" required aria-required="true" />
+          </div>
+
+          <div class="wd-field">
+            <label for="last-name">Last Name *</label>
+            <input type="text" id="last-name" name="lastName" required aria-required="true" />
+          </div>
+
+          <div class="wd-field">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required aria-required="true" />
+          </div>
+
+          <div class="wd-field">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" />
+          </div>
+
+          <div class="wd-field">
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" />
+          </div>
+
+          <div class="wd-field">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" />
+          </div>
+
+          <div class="wd-field">
+            <label for="state">State/Province</label>
+            <select id="state" name="state">
+              <option value="">Select...</option>
+              <option value="CA">California</option>
+              <option value="NY">New York</option>
+              <option value="TX">Texas</option>
+            </select>
+          </div>
+
+          <div class="wd-field">
+            <label for="country">Country *</label>
+            <select id="country" name="country" required>
+              <option value="">Select...</option>
+              <option value="US">United States</option>
+              <option value="CA">Canada</option>
+              <option value="UK">United Kingdom</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="wd-section">
+          <h2>Resume/CV</h2>
+          <div class="wd-field">
+            <label for="resume">Upload Resume *</label>
+            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required />
+            <p class="wd-hint">Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
+          </div>
+
+          <div class="wd-field">
+            <label for="cover-letter">Cover Letter (Optional)</label>
+            <input type="file" id="cover-letter" name="coverLetter" accept=".pdf,.doc,.docx" />
+          </div>
+        </section>
+
+        <section class="wd-section">
+          <h2>Education</h2>
+          <div class="wd-repeatable" id="education-section">
+            <div class="wd-entry" data-index="0">
+              <div class="wd-field">
+                <label for="school-0">School Name *</label>
+                <input type="text" id="school-0" name="education[0][school]" />
+              </div>
+              <div class="wd-field">
+                <label for="degree-0">Degree *</label>
+                <select id="degree-0" name="education[0][degree]">
+                  <option value="">Select...</option>
+                  <option value="BS">Bachelor of Science</option>
+                  <option value="BA">Bachelor of Arts</option>
+                  <option value="MS">Master of Science</option>
+                  <option value="MBA">MBA</option>
+                  <option value="PhD">PhD</option>
+                </select>
+              </div>
+              <div class="wd-field">
+                <label for="major-0">Major/Field of Study</label>
+                <input type="text" id="major-0" name="education[0][major]" />
+              </div>
+              <div class="wd-field">
+                <label for="grad-year-0">Graduation Year</label>
+                <input type="number" id="grad-year-0" name="education[0][gradYear]" min="1950" max="2030" />
+              </div>
+            </div>
+          </div>
+          <button type="button" class="wd-add-btn" data-target="education-section">+ Add Education</button>
+        </section>
+
+        <section class="wd-section">
+          <h2>Work Experience</h2>
+          <div class="wd-repeatable" id="experience-section">
+            <div class="wd-entry" data-index="0">
+              <div class="wd-field">
+                <label for="company-0">Company *</label>
+                <input type="text" id="company-0" name="experience[0][company]" />
+              </div>
+              <div class="wd-field">
+                <label for="title-0">Job Title *</label>
+                <input type="text" id="title-0" name="experience[0][title]" />
+              </div>
+              <div class="wd-field">
+                <label for="exp-location-0">Location</label>
+                <input type="text" id="exp-location-0" name="experience[0][location]" />
+              </div>
+              <div class="wd-field-group">
+                <div class="wd-field">
+                  <label for="start-date-0">Start Date *</label>
+                  <input type="month" id="start-date-0" name="experience[0][startDate]" />
+                </div>
+                <div class="wd-field">
+                  <label for="end-date-0">End Date</label>
+                  <input type="month" id="end-date-0" name="experience[0][endDate]" />
+                </div>
+                <div class="wd-field wd-checkbox">
+                  <input type="checkbox" id="current-0" name="experience[0][current]" />
+                  <label for="current-0">I currently work here</label>
+                </div>
+              </div>
+              <div class="wd-field">
+                <label for="description-0">Description</label>
+                <textarea id="description-0" name="experience[0][description]" rows="4"></textarea>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="wd-add-btn" data-target="experience-section">+ Add Experience</button>
+        </section>
+
+        <section class="wd-section">
+          <h2>Skills</h2>
+          <div class="wd-field">
+            <label for="skills">Skills</label>
+            <input type="text" id="skills" name="skills" placeholder="e.g., JavaScript, Python, React" />
+            <p class="wd-hint">Separate skills with commas</p>
+          </div>
+
+          <div class="wd-field">
+            <label for="linkedin">LinkedIn Profile</label>
+            <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile" />
+          </div>
+
+          <div class="wd-field">
+            <label for="portfolio">Portfolio/Website</label>
+            <input type="url" id="portfolio" name="portfolio" placeholder="https://yourportfolio.com" />
+          </div>
+        </section>
+
+        <section class="wd-section">
+          <h2>Additional Questions</h2>
+          
+          <div class="wd-field">
+            <label for="authorization">Are you legally authorized to work in the United States? *</label>
+            <select id="authorization" name="authorization" required>
+              <option value="">Select...</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+              <option value="need-sponsorship">No, but I can obtain authorization</option>
+            </select>
+          </div>
+
+          <div class="wd-field">
+            <label for="salary-expectation">Salary Expectation (Annual)</label>
+            <input type="text" id="salary-expectation" name="salaryExpectation" placeholder="e.g., $150,000" />
+          </div>
+
+          <div class="wd-field">
+            <label for="referral">How did you hear about us?</label>
+            <select id="referral" name="referralSource">
+              <option value="">Select...</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="indeed">Indeed</option>
+              <option value="referral">Employee Referral</option>
+              <option value="company-website">Company Website</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="wd-section wd-consent">
+          <div class="wd-field wd-checkbox">
+            <input type="checkbox" id="terms" name="terms" required />
+            <label for="terms">I have read and agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a> *</label>
+          </div>
+
+          <div class="wd-field wd-checkbox">
+            <input type="checkbox" id="data-consent" name="dataConsent" />
+            <label for="data-consent">I consent to my data being stored for future job opportunities</label>
+          </div>
+        </section>
+
+        <div class="wd-actions">
+          <button type="button" class="wd-btn wd-btn-secondary">Save as Draft</button>
+          <button type="submit" class="wd-btn wd-btn-primary">Submit Application</button>
+        </div>
+      </form>
+    </main>
+
+    <footer class="wd-footer">
+      <p>&copy; 2024 Company Name. Powered by Workday.</p>
+    </footer>
+  </div>
+</body>
+</html>
