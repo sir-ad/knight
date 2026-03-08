@@ -1,3 +1,5 @@
+import type { LLMConfig, LLMMessage, LLMProvider } from "./llm/types"
+
 export interface ProfileIdentity {
   name: string
   email: string
@@ -157,14 +159,109 @@ export interface ApplicationLogPayload {
   notes?: string
 }
 
-export interface OllamaSettings {
+export interface OllamaProviderSettings {
   provider: "ollama"
   endpoint: string
   model: string
+  temperature?: number
+  maxTokens?: number
+  autoDetectModel?: boolean
+}
+
+export interface OpenAIProviderSettings {
+  provider: "openai"
+  model: string
+  temperature?: number
+  maxTokens?: number
+}
+
+export interface AnthropicProviderSettings {
+  provider: "anthropic"
+  model: string
+  temperature?: number
+  maxTokens?: number
+}
+
+export interface GoogleProviderSettings {
+  provider: "google"
+  model: string
+  temperature?: number
+  maxTokens?: number
+}
+
+export interface OpenRouterProviderSettings {
+  provider: "openrouter"
+  model: string
+  temperature?: number
+  maxTokens?: number
+}
+
+export type ProviderSettings =
+  | OllamaProviderSettings
+  | OpenAIProviderSettings
+  | AnthropicProviderSettings
+  | GoogleProviderSettings
+  | OpenRouterProviderSettings
+
+export interface ProviderSecretStore {
+  openai?: string
+  anthropic?: string
+  google?: string
+  openrouter?: string
+}
+
+export interface ProviderModelCatalog {
+  provider: LLMProvider
+  models: string[]
+  defaultModel: string
+  recommendedModel: string
+  source: "live" | "fallback"
+  discoveredAt: string | null
+  endpoint?: string
+}
+
+export type ProviderDiagnosticKind =
+  | "ok"
+  | "network"
+  | "forbidden_origin"
+  | "wrong_method"
+  | "wrong_path"
+  | "missing_api_key"
+  | "invalid_api_key"
+  | "model_missing"
+  | "provider_error"
+
+export interface ProviderDiagnostics {
+  provider: LLMProvider
+  ok: boolean
+  kind: ProviderDiagnosticKind
+  message: string
+  status?: number
+  normalizedEndpoint?: string
+  discoveredModels?: string[]
+  recommendedModel?: string
+  source?: "live" | "fallback"
+}
+
+export interface SupportedPortalDefinition {
+  id: ATSAdapterName
+  name: string
+  vendorUrl?: string
+  supportedDomains: string[]
+  note: string
+}
+
+export interface LLMRecommendation {
+  provider: LLMProvider
+  model: string
+  reason: string
 }
 
 export interface ExtensionSettings {
-  llmConfig: OllamaSettings
+  llmConfig: ProviderSettings
+  autoMode: "smart-defaults" | "manual"
+  providerCatalogs: Partial<Record<LLMProvider, ProviderModelCatalog>>
+  lastRecommendation?: LLMRecommendation | null
   gmailClientId: string
   gmailConnected: boolean
   lastSync: string | null
@@ -194,6 +291,18 @@ export type RuntimeMessage =
   | { type: "DISCONNECT_GMAIL" }
   | { type: "SYNC_GMAIL" }
   | { type: "GET_GMAIL_STATUS" }
+  | { type: "TEST_LLM_PROVIDER"; payload?: { config?: Partial<LLMConfig>; apiKey?: string } }
+  | { type: "DISCOVER_LLM_MODELS"; payload?: { config?: Partial<LLMConfig>; apiKey?: string } }
+  | { type: "GENERATE_LLM_TEXT"; payload: { prompt: string; config?: Partial<LLMConfig>; apiKey?: string } }
+  | {
+      type: "GENERATE_LLM_STRUCTURED"
+      payload: { prompt: string; config?: Partial<LLMConfig>; apiKey?: string }
+    }
+  | {
+      type: "GENERATE_LLM_CHAT"
+      payload: { messages: LLMMessage[]; config?: Partial<LLMConfig>; apiKey?: string }
+    }
+  | { type: "GET_SUPPORTED_PORTALS" }
 
 export interface RuntimeResponse<T = unknown> {
   success: boolean

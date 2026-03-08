@@ -8,7 +8,7 @@ export class GoogleProvider implements LLMProviderInterface {
     "gemini-1.5-pro",
     "gemini-1.5-flash"
   ]
-  defaultModel = "gemini-1.5-flash"
+  defaultModel = "gemini-2.0-flash"
   requiresApiKey = true
 
   private endpoint = "https://generativelanguage.googleapis.com/v1beta"
@@ -122,6 +122,10 @@ export class GoogleProvider implements LLMProviderInterface {
       if (error instanceof Error) throw error
       return false
     }
+  }
+
+  async discoverModels(): Promise<string[]> {
+    return this.models
   }
 
   getModels(): string[] {

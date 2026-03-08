@@ -1,10 +1,19 @@
-import type { ApplicationRecord, ExtensionSettings, Profile } from "./types"
+import type {
+  ApplicationRecord,
+  ExtensionSettings,
+  OllamaProviderSettings,
+  Profile,
+  ProviderSecretStore,
+  ProviderSettings,
+} from "./types"
+import type { LLMProvider } from "./llm/types"
 
 export const STORAGE_KEYS = {
   PROFILE: "careerflow_profile",
   SETTINGS: "careerflow_settings",
   APPLICATIONS: "careerflow_applications",
   GMAIL_TOKEN: "careerflow_gmail_token",
+  PROVIDER_SECRETS: "careerflow_provider_secrets",
 } as const
 
 const LEGACY_KEYS = {
@@ -17,7 +26,13 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     provider: "ollama",
     endpoint: "http://localhost:11434",
     model: "llama3.2:3b",
+    temperature: 0.3,
+    maxTokens: 2048,
+    autoDetectModel: true,
   },
+  autoMode: "smart-defaults",
+  providerCatalogs: {},
+  lastRecommendation: null,
   gmailClientId:
     process.env.PLASMO_PUBLIC_GOOGLE_CLIENT_ID ||
     "706101500110-metd89g3jf52pu073bo9005jf9ar3l75.apps.googleusercontent.com",
@@ -27,6 +42,8 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   followUpDays: 7,
   syncIntervalHours: 6,
 }
+
+const DEFAULT_OLLAMA_SETTINGS = DEFAULT_SETTINGS.llmConfig as OllamaProviderSettings
 
 async function getLocalStorage<T = Record<string, unknown>>(
   keys: string | string[] | null
@@ -38,6 +55,55 @@ async function setLocalStorage(values: Record<string, unknown>): Promise<void> {
   await chrome.storage.local.set(values)
 }
 
+export function normalizeProviderSettings(settings?: Partial<ProviderSettings>): ProviderSettings {
+  const provider = settings?.provider || DEFAULT_SETTINGS.llmConfig.provider
+
+  if (provider === "ollama") {
+    const currentEndpoint =
+      settings && "endpoint" in settings && typeof settings.endpoint === "string"
+        ? settings.endpoint
+        : undefined
+
+    return {
+      ...DEFAULT_OLLAMA_SETTINGS,
+      ...settings,
+      provider: "ollama",
+      endpoint: currentEndpoint?.trim() || DEFAULT_OLLAMA_SETTINGS.endpoint,
+      model:
+        (typeof settings?.model === "string" && settings.model.trim()) ||
+        DEFAULT_OLLAMA_SETTINGS.model,
+    }
+  }
+
+  return {
+    provider,
+    model:
+      (typeof settings?.model === "string" && settings.model.trim()) ||
+      getDefaultModelForProvider(provider),
+    temperature:
+      typeof settings?.temperature === "number"
+        ? settings.temperature
+        : DEFAULT_SETTINGS.llmConfig.temperature,
+    maxTokens:
+      typeof settings?.maxTokens === "number"
+        ? settings.maxTokens
+        : DEFAULT_SETTINGS.llmConfig.maxTokens,
+  }
+}
+
+function getDefaultModelForProvider(provider: Exclude<LLMProvider, "ollama">): string {
+  switch (provider) {
+    case "openai":
+      return "gpt-4o-mini"
+    case "anthropic":
+      return "claude-3-5-haiku-20241022"
+    case "google":
+      return "gemini-2.0-flash"
+    case "openrouter":
+      return "meta-llama/llama-3.2-3b-instruct:free"
+  }
+}
+
 export class ChromeStorageManager {
   async migrateLegacyData(): Promise<void> {
     const result = await getLocalStorage<Record<string, unknown>>([
@@ -46,6 +112,7 @@ export class ChromeStorageManager {
       STORAGE_KEYS.GMAIL_TOKEN,
       LEGACY_KEYS.GMAIL_TOKEN,
       STORAGE_KEYS.SETTINGS,
+      STORAGE_KEYS.PROVIDER_SECRETS,
     ])
 
     const updates: Record<string, unknown> = {}
@@ -82,11 +149,12 @@ export class ChromeStorageManager {
     return {
       ...DEFAULT_SETTINGS,
       ...settings,
-      llmConfig: {
-        ...DEFAULT_SETTINGS.llmConfig,
-        ...(settings?.llmConfig || {}),
-        provider: "ollama",
-      },
+      providerCatalogs: settings?.providerCatalogs || DEFAULT_SETTINGS.providerCatalogs,
+      lastRecommendation:
+        settings?.lastRecommendation === undefined
+          ? DEFAULT_SETTINGS.lastRecommendation
+          : settings.lastRecommendation,
+      llmConfig: normalizeProviderSettings(settings?.llmConfig),
     }
   }
 
@@ -121,10 +189,10 @@ export class ChromeStorageManager {
     const next = this.normalizeSettings({
       ...current,
       ...settings,
-      llmConfig: {
-        ...current.llmConfig,
+      llmConfig: normalizeProviderSettings({
+        ...(current.llmConfig as ProviderSettings),
         ...(settings.llmConfig || {}),
-      },
+      }),
     })
 
     await setLocalStorage({
@@ -156,12 +224,53 @@ export class ChromeStorageManager {
     })
   }
 
+  async getProviderSecrets(): Promise<ProviderSecretStore> {
+    const result = await getLocalStorage<Record<string, ProviderSecretStore | undefined>>(
+      STORAGE_KEYS.PROVIDER_SECRETS
+    )
+    return result[STORAGE_KEYS.PROVIDER_SECRETS] || {}
+  }
+
+  async saveProviderSecret(
+    provider: Exclude<LLMProvider, "ollama">,
+    apiKey: string
+  ): Promise<ProviderSecretStore> {
+    const current = await this.getProviderSecrets()
+    const next = {
+      ...current,
+      [provider]: apiKey.trim(),
+    }
+
+    await setLocalStorage({
+      [STORAGE_KEYS.PROVIDER_SECRETS]: next,
+    })
+
+    return next
+  }
+
+  async removeProviderSecret(provider: Exclude<LLMProvider, "ollama">): Promise<ProviderSecretStore> {
+    const current = await this.getProviderSecrets()
+    const next = { ...current }
+    delete next[provider]
+
+    await setLocalStorage({
+      [STORAGE_KEYS.PROVIDER_SECRETS]: next,
+    })
+
+    return next
+  }
+
+  async getProviderApiKey(provider: Exclude<LLMProvider, "ollama">): Promise<string | undefined> {
+    const secrets = await this.getProviderSecrets()
+    return secrets[provider]
+  }
+
   async exportAllData(): Promise<string> {
     const result = await getLocalStorage<Record<string, unknown>>(null)
     const careerflowData: Record<string, unknown> = {}
 
     for (const [key, value] of Object.entries(result)) {
-      if (key.startsWith("careerflow_")) {
+      if (key.startsWith("careerflow_") && key !== STORAGE_KEYS.PROVIDER_SECRETS) {
         careerflowData[key] = value
       }
     }
@@ -171,6 +280,13 @@ export class ChromeStorageManager {
 
   async importData(jsonString: string): Promise<void> {
     const data = JSON.parse(jsonString)
+    if (data && typeof data === "object") {
+      delete data[STORAGE_KEYS.PROVIDER_SECRETS]
+      if (data[STORAGE_KEYS.SETTINGS]) {
+        data[STORAGE_KEYS.SETTINGS] = this.normalizeSettings(data[STORAGE_KEYS.SETTINGS])
+      }
+    }
+
     await setLocalStorage(data)
   }
 

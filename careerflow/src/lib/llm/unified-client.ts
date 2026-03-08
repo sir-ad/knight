@@ -80,6 +80,17 @@ export class UnifiedLLMClient {
     return providerInstance.getModels()
   }
 
+  async discoverModels(config?: Partial<LLMConfig>): Promise<string[]> {
+    const finalConfig = { ...this.config, ...config }
+    const provider = this.getProvider(finalConfig.provider)
+
+    if (provider.discoverModels) {
+      return provider.discoverModels(finalConfig)
+    }
+
+    return provider.getModels()
+  }
+
   async testAllProviders(): Promise<Record<LLMProvider, boolean>> {
     const results: Record<LLMProvider, boolean> = {} as any
     

@@ -6,7 +6,7 @@
     <title>Knight | Local-First Job Application Autofill</title>
     <meta
       name="description"
-      content="Knight is a privacy-first Chrome extension that parses your resume with Ollama, autofills major ATS portals, tracks Gmail updates, and drafts follow-ups."
+      content="Knight is a privacy-first Chrome extension that supports Ollama, OpenAI, Anthropic, Gemini, and OpenRouter for resume parsing, ATS autofill, Gmail tracking, and follow-up drafting."
     />
     <meta property="og:title" content="Knight" />
     <meta
@@ -42,20 +42,21 @@
 
         <div class="hero-content">
           <div class="hero-copy">
-            <p class="eyebrow">Chrome extension • Ollama-first • GitHub Pages</p>
+            <p class="eyebrow">Chrome extension • Multi-provider • GitHub Pages</p>
             <h1>Apply faster without handing your resume to a hosted AI.</h1>
             <p class="hero-text">
               Knight parses your resume locally, maps it onto common ATS forms, logs applications,
-              reads Gmail updates with a read-only scope, and drafts follow-ups with Ollama.
+              reads Gmail updates with a read-only scope, and drafts follow-ups with Ollama,
+              OpenAI, Anthropic, Google Gemini, or OpenRouter.
             </p>
             <div class="hero-actions">
               <a class="button primary" href="https://github.com/sir-ad/knight">View Repository</a>
               <a class="button secondary" href="#install">Installation Guide</a>
             </div>
             <ul class="hero-points">
-              <li>No cloud resume parsing required</li>
+              <li>Local-first with optional cloud providers</li>
               <li>Works across major ATS portals and generic forms</li>
-              <li>Tracks confirmations, interviews, rejections, and offers</li>
+              <li>Auto-discovers installed Ollama models and tracks Gmail status drift</li>
             </ul>
           </div>
 
@@ -66,12 +67,12 @@
               </div>
               <div class="window-body">
                 <div class="metric">
-                  <strong>8+</strong>
-                  <span>ATS families supported</span>
+                  <strong>5</strong>
+                  <span>LLM providers supported</span>
                 </div>
                 <div class="metric">
-                  <strong>100%</strong>
-                  <span>Local-first resume parsing path</span>
+                  <strong>9</strong>
+                  <span>Portal paths including generic fallback</span>
                 </div>
                 <div class="metric">
                   <strong>129</strong>
@@ -79,9 +80,9 @@
                 </div>
                 <div class="status-list">
                   <div><b>Resume</b><span>PDF / DOCX / TXT</span></div>
-                  <div><b>Autofill</b><span>Review-first overlay</span></div>
+                  <div><b>Providers</b><span>Ollama / OpenAI / Anthropic / Gemini / OpenRouter</span></div>
                   <div><b>Tracking</b><span>Gmail read-only sync</span></div>
-                  <div><b>Follow-up</b><span>Ollama drafted replies</span></div>
+                  <div><b>Follow-up</b><span>Active provider drafted replies</span></div>
                 </div>
               </div>
             </div>
@@ -101,7 +102,8 @@
               <h3>1. Parse once</h3>
               <p>
                 Import your resume as PDF, DOCX, or TXT. Knight extracts a reusable profile locally
-                and stores it in Chrome storage.
+                and stores it in Chrome storage. Ollama stays the privacy-first default, but cloud
+                providers are supported when you need them.
               </p>
             </article>
             <article class="feature-card">
@@ -122,7 +124,7 @@
               <h3>4. Draft the follow-up</h3>
               <p>
                 When a role stalls, Knight uses your profile plus application history to prepare a
-                concise follow-up draft with Ollama.
+                concise follow-up draft with the currently selected provider.
               </p>
             </article>
           </div>
@@ -148,7 +150,9 @@
 
           <p class="support-note">
             Knight also includes a generic form-mapping fallback for employer-hosted portals that
-            expose standard inputs, labels, placeholders, or aria metadata.
+            expose standard inputs, labels, placeholders, or aria metadata. In the extension
+            settings, each supported platform is listed with its canonical vendor link and domain
+            coverage.
           </p>
         </section>
 
@@ -164,6 +168,8 @@
               <pre><code>git clone git@github.com:sir-ad/knight.git
 cd knight/careerflow
 npm install
+OLLAMA_ORIGINS=chrome-extension://* ollama serve
+ollama pull llama3.2:3b
 npm test -- --runInBand
 npm run build
 </code></pre>
@@ -181,8 +187,9 @@ npm run build
               <h3>Local requirements</h3>
               <ul>
                 <li>Node.js 20+</li>
-                <li>Ollama running locally</li>
-                <li><code>llama3.2:3b</code> or similar pulled model</li>
+                <li>Ollama running locally for the default privacy-first path</li>
+                <li><code>llama3.2:3b</code> or another installed Ollama model</li>
+                <li>Optional API keys for OpenAI, Anthropic, Google Gemini, or OpenRouter</li>
                 <li>Optional Google OAuth client for Gmail sync</li>
               </ul>
             </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
-import { getLLMClient } from "../../lib/llm"
-import { ollamaClient } from "../../lib/ollama-client"
+import { getProviderLabel } from "../../lib/llm/provider-service"
 import { parseResume, validateProfile } from "../../lib/resume-parser"
+import { testActiveProvider } from "../../lib/runtime-client"
 import { storageManager } from "../../lib/storage-manager"
 import type { Profile } from "../../lib/types"
 
@@ -11,7 +11,8 @@ export function ProfileTab() {
   const [isEditing, setIsEditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parseTime, setParseTime] = useState<number | null>(null)
-  const [ollamaStatus, setOllamaStatus] = useState<"unknown" | "connected" | "disconnected">(
+  const [providerName, setProviderName] = useState("Ollama")
+  const [providerStatus, setProviderStatus] = useState<"unknown" | "connected" | "disconnected">(
     "unknown"
   )
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -27,10 +28,10 @@ export function ProfileTab() {
     ])
 
     setProfile(storedProfile)
+    setProviderName(getProviderLabel(settings.llmConfig.provider))
 
-    const client = getLLMClient(settings.llmConfig)
-    const connected = await client.testConnection().catch(() => false)
-    setOllamaStatus(connected ? "connected" : "disconnected")
+    const diagnostics = await testActiveProvider().catch(() => null)
+    setProviderStatus(diagnostics?.ok ? "connected" : "disconnected")
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,15 +46,12 @@ export function ProfileTab() {
 
     try {
       const settings = await storageManager.getSettings()
-      const client = getLLMClient(settings.llmConfig)
-      const connected = await client.testConnection()
+      setProviderName(getProviderLabel(settings.llmConfig.provider))
 
-      if (!connected) {
-        throw new Error("Cannot connect to Ollama. Check the endpoint in Settings.")
+      const diagnostics = await testActiveProvider()
+      if (!diagnostics.ok) {
+        throw new Error(diagnostics.message)
       }
-
-      ollamaClient.setEndpoint(settings.llmConfig.endpoint)
-      ollamaClient.setModel(settings.llmConfig.model)
 
       const result = await parseResume(file)
       if (!result.success || !result.profile) {
@@ -68,9 +66,10 @@ export function ProfileTab() {
       await storageManager.saveProfile(result.profile)
       setProfile(result.profile)
       setParseTime(result.parse_time_ms || null)
-      setOllamaStatus("connected")
+      setProviderStatus("connected")
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unknown error")
+      setProviderStatus("disconnected")
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) {
@@ -92,17 +91,17 @@ export function ProfileTab() {
     <div className="space-y-4">
       <div className="rounded-lg border bg-white p-3 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">Ollama Status</span>
+          <span className="text-sm font-medium text-gray-700">{providerName} Status</span>
           <span
             className={`rounded-full px-2 py-1 text-xs ${
-              ollamaStatus === "connected"
+              providerStatus === "connected"
                 ? "bg-emerald-100 text-emerald-700"
-                : ollamaStatus === "disconnected"
+                : providerStatus === "disconnected"
                   ? "bg-rose-100 text-rose-700"
                   : "bg-slate-100 text-slate-600"
             }`}
           >
-            {ollamaStatus}
+            {providerStatus}
           </span>
         </div>
       </div>

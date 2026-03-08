@@ -1,4 +1,4 @@
-import { getLLMClient } from "./llm"
+import { generateStructuredWithActiveProvider } from "./runtime-client"
 import type { ApplicationRecord, Profile } from "./types"
 
 export interface FollowUpEmail {
@@ -70,9 +70,7 @@ export async function generateFollowUpEmail(
   profile: Profile
 ): Promise<FollowUpEmail> {
   const prompt = buildPrompt(application, profile)
-  const client = getLLMClient()
-
-  const response = await client.generateStructured(prompt, {
+  const response = await generateStructuredWithActiveProvider<FollowUpEmail>(prompt, {
     temperature: 0.5,
     maxTokens: 500,
   })

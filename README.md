@@ -5,7 +5,7 @@
 [![Release](https://github.com/sir-ad/knight/actions/workflows/release.yml/badge.svg)](https://github.com/sir-ad/knight/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f172a.svg)](./LICENSE)
 
-Privacy-first Chrome extension for job applications. Knight parses your resume locally with Ollama, autofills common ATS portals, logs applications, syncs Gmail status updates, and drafts follow-ups without sending your profile to a hosted LLM.
+Privacy-first Chrome extension for job applications. Knight parses your resume locally or through your chosen provider, autofills common ATS portals, logs applications, syncs Gmail status updates, and drafts follow-ups without forcing your profile through a hosted AI workflow.
 
 ![Knight icon](./careerflow/assets/icon128.png)
 
@@ -14,11 +14,13 @@ Website: [sir-ad.github.io/knight](https://sir-ad.github.io/knight/)
 ## What It Does
 
 - Local-first resume parsing for `PDF`, `DOCX`, and `TXT`
+- AI provider support for `Ollama`, `OpenAI`, `Anthropic`, `Google Gemini`, and `OpenRouter`
+- Smart defaults that auto-discover installed Ollama models and recommend the best reachable provider/model
 - Autofill support for `Workday`, `Greenhouse`, `Lever`, `Naukri`, `iCIMS`, `SmartRecruiters`, `Taleo`, `SuccessFactors`, plus a generic fallback
 - In-page review overlay before filling
 - Local application log with status history
 - Gmail read-only sync for confirmations, interviews, rejections, and offers
-- Follow-up email draft generation with Ollama
+- Follow-up email draft generation with the active provider
 
 ## Repo Layout
 
@@ -40,14 +42,29 @@ Then load `careerflow/build/chrome-mv3-prod` in `chrome://extensions` with Devel
 ## Local Requirements
 
 - Node.js 20+
-- Ollama running locally
+- Ollama running locally for the privacy-first path
 - A pulled model such as `llama3.2:3b`
+- Optional cloud provider API key for `OpenAI`, `Anthropic`, `Google Gemini`, or `OpenRouter`
 - Optional Gmail OAuth setup using `PLASMO_PUBLIC_GOOGLE_CLIENT_ID`
 
 ```bash
-ollama serve
+OLLAMA_ORIGINS=chrome-extension://* ollama serve
 ollama pull llama3.2:3b
 ```
+
+Knight expects the Ollama endpoint as the host root only, for example `http://localhost:11434`. Do not add `/api` to the saved endpoint.
+
+## Supported Portals
+
+- [Workday](https://www.workday.com/) via `*.myworkdayjobs.com`
+- [Greenhouse](https://www.greenhouse.com/) via `boards.greenhouse.io` and `*.greenhouse.io`
+- [Lever](https://www.lever.co/) via `jobs.lever.co` and `*.lever.co`
+- [Naukri](https://www.naukri.com/) via `*.naukri.com`
+- [iCIMS](https://www.icims.com/) via `*.icims.com`
+- [SmartRecruiters](https://www.smartrecruiters.com/) via `*.smartrecruiters.com`
+- [Oracle Taleo](https://www.oracle.com/human-capital-management/taleo/) via `*.taleo.net`
+- [SAP SuccessFactors](https://www.sap.com/products/hcm.html) via `*successfactors*` and `*.jobs2web.com`
+- Generic fallback for employer-hosted forms that expose standard labels, placeholders, or aria metadata
 
 ## Validation
 
@@ -68,7 +85,7 @@ npm run package
 
 ## Tags
 
-`chrome-extension` `job-search` `ats-autofill` `ollama` `gmail` `privacy-first` `plasmo` `typescript`
+`chrome-extension` `job-search` `ats-autofill` `ollama` `openai` `anthropic` `gemini` `openrouter` `gmail` `privacy-first` `plasmo` `typescript`
 
 ## Notes
 

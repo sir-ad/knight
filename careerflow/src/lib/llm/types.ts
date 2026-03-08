@@ -30,10 +30,11 @@ export interface LLMProviderInterface {
   models: string[]
   defaultModel: string
   requiresApiKey: boolean
-  
+
   generate(config: LLMConfig, prompt: string): Promise<string>
   generateStructured(config: LLMConfig, prompt: string): Promise<any>
   generateChat(config: LLMConfig, messages: LLMMessage[]): Promise<string>
   testConnection(config: LLMConfig): Promise<boolean>
+  discoverModels?(config: LLMConfig): Promise<string[]>
   getModels(): string[]
 }

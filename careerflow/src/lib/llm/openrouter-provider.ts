@@ -122,6 +122,31 @@ export class OpenRouterProvider implements LLMProviderInterface {
     }
   }
 
+  async discoverModels(config: LLMConfig): Promise<string[]> {
+    if (!config.apiKey) {
+      return this.models
+    }
+
+    const response = await fetch(`${this.endpoint}/models`, {
+      headers: { Authorization: `Bearer ${config.apiKey}` },
+    })
+
+    if (!response.ok) {
+      return this.models
+    }
+
+    const data = (await response.json()) as { data?: Array<{ id?: string }> }
+    const discovered = (data.data || [])
+      .map((model) => model.id)
+      .filter((value): value is string => Boolean(value))
+
+    if (discovered.length > 0) {
+      this.models = discovered
+    }
+
+    return this.models
+  }
+
   getModels(): string[] {
     return this.models
   }
