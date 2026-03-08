@@ -1,7 +1,7 @@
 {
   "name": "knight-extension",
   "displayName": "Knight",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Knight - Universal Job Application & Tracking System - Privacy-first browser extension",
   "license": "MIT",
   "author": "sir-ad",
@@ -68,7 +68,7 @@
     },
     "name": "Knight",
     "description": "Knight - Universal Job Application & Tracking System",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "host_permissions": [
       "https://www.googleapis.com/*",
       "http://localhost:11434/*",
