@@ -101,9 +101,9 @@
             <article class="feature-card">
               <h3>1. Parse once</h3>
               <p>
-                Import your resume as PDF, DOCX, or TXT. Knight extracts a reusable profile locally
-                and stores it in Chrome storage. Ollama stays the privacy-first default, but cloud
-                providers are supported when you need them.
+                Import your resume as PDF, DOCX, or TXT. Knight now uses a local parser service
+                powered by LangExtract, PyMuPDF, and optional Tesseract OCR to build a reusable
+                profile without doing brittle PDF parsing inside the browser.
               </p>
             </article>
             <article class="feature-card">
@@ -166,7 +166,11 @@
             <div class="install-card">
               <h3>Local setup</h3>
               <pre><code>git clone git@github.com:sir-ad/knight.git
-cd knight/careerflow
+cd knight/resume-parser-sidecar
+./scripts/setup-venv.sh
+./scripts/run.sh
+
+cd ../careerflow
 npm install
 OLLAMA_ORIGINS=chrome-extension://* ollama serve
 ollama pull llama3.2:3b
@@ -187,8 +191,11 @@ npm run build
               <h3>Local requirements</h3>
               <ul>
                 <li>Node.js 20+</li>
+                <li>Python 3.11+ for the local parser sidecar</li>
+                <li>Resume parser sidecar on <code>127.0.0.1:43118</code></li>
                 <li>Ollama running locally for the default privacy-first path</li>
                 <li><code>llama3.2:3b</code> or another installed Ollama model</li>
+                <li><code>tesseract</code> if you want OCR for scanned PDFs</li>
                 <li>Optional API keys for OpenAI, Anthropic, Google Gemini, or OpenRouter</li>
                 <li>Optional Google OAuth client for Gmail sync</li>
               </ul>
@@ -205,7 +212,7 @@ npm run build
           <div class="repo-grid">
             <article>
               <h3>CI</h3>
-              <p>Typecheck, test, build, and package the extension on every push to the main branch.</p>
+              <p>Typecheck, test, build, and package the extension, then run the Python sidecar test suite with Tesseract installed.</p>
             </article>
             <article>
               <h3>Pages</h3>

@@ -1,10 +1,17 @@
-import { useEffect, useRef, useState } from "react"
+import { type ChangeEvent, useEffect, useRef, useState } from "react"
 import { createEmptyWorkExperience, validateProfile } from "../../lib/profile-safety"
 import { getProviderLabel } from "../../lib/llm/provider-service"
-import { parseResume } from "../../lib/resume-parser"
-import { testActiveProvider } from "../../lib/runtime-client"
+import { parseResume, parseResumeFromText } from "../../lib/resume-parser"
+import { getResumeParserStatus } from "../../lib/runtime-client"
 import { storageManager } from "../../lib/storage-manager"
-import type { Profile, ProfileDraft, WorkExperience } from "../../lib/types"
+import type {
+  ParsedResume,
+  Profile,
+  ProfileDraft,
+  ResumeParseDiagnostic,
+  ResumeParserServiceStatus,
+  WorkExperience,
+} from "../../lib/types"
 
 function formatJson(value: unknown): string {
   try {
@@ -23,45 +30,123 @@ function buildDraftErrorMessage(errors: string[]): string {
 }
 
 function getDraftWorkHistory(draft: ProfileDraft): WorkExperience[] {
-  return draft.profile.work_history.length > 0 ? draft.profile.work_history : [createEmptyWorkExperience()]
+  return draft.profile.work_history.length > 0
+    ? draft.profile.work_history
+    : [createEmptyWorkExperience()]
+}
+
+function shouldShowManualFallback(diagnostics: ResumeParseDiagnostic[]): boolean {
+  return diagnostics.some((diagnostic) => diagnostic.stage === "extraction")
+}
+
+function connectionState(
+  parserStatus: ResumeParserServiceStatus | null
+): "unknown" | "connected" | "disconnected" {
+  if (!parserStatus) {
+    return "unknown"
+  }
+
+  return parserStatus.ok ? "connected" : "disconnected"
 }
 
 export function ProfileTab() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [draft, setDraft] = useState<ProfileDraft | null>(null)
+  const [parserStatus, setParserStatus] = useState<ResumeParserServiceStatus | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [isManualParsing, setIsManualParsing] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parseTime, setParseTime] = useState<number | null>(null)
-  const [providerName, setProviderName] = useState("Ollama")
-  const [providerStatus, setProviderStatus] = useState<"unknown" | "connected" | "disconnected">(
-    "unknown"
-  )
+  const [parseDiagnostics, setParseDiagnostics] = useState<ResumeParseDiagnostic[]>([])
+  const [manualResumeText, setManualResumeText] = useState("")
+  const [showManualResumeEntry, setShowManualResumeEntry] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     void loadProfileState()
   }, [])
 
+  const refreshParserStatus = async (): Promise<ResumeParserServiceStatus | null> => {
+    try {
+      const status = await getResumeParserStatus()
+      setParserStatus(status)
+      return status
+    } catch (reason) {
+      setParserStatus(null)
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Failed to load resume parser service status."
+      )
+      return null
+    }
+  }
+
   const loadProfileState = async () => {
-    const settings = await storageManager.getSettings()
-    const storedProfile = await storageManager.getProfile()
-    const storedDraft = await storageManager.getProfileDraft()
+    const [storedProfile, storedDraft] = await Promise.all([
+      storageManager.getProfile(),
+      storageManager.getProfileDraft(),
+    ])
 
     setProfile(storedProfile)
     setDraft(storedDraft)
-    setProviderName(getProviderLabel(settings.llmConfig.provider))
     setError(storedDraft ? buildDraftErrorMessage(storedDraft.validationErrors) : null)
-
-    const diagnostics = await testActiveProvider().catch(() => null)
-    setProviderStatus(diagnostics?.ok ? "connected" : "disconnected")
+    setParseDiagnostics([])
+    await refreshParserStatus()
   }
 
   const openFilePicker = () => {
     fileInputRef.current?.click()
   }
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const applyParseResult = async (result: ParsedResume) => {
+    setParseTime(result.parse_time_ms || null)
+    setParseDiagnostics(result.diagnostics || [])
+
+    if (!result.success) {
+      setError(result.error || "Failed to parse resume.")
+      setShowManualResumeEntry(shouldShowManualFallback(result.diagnostics || []))
+      return
+    }
+
+    if (result.profile) {
+      await storageManager.saveProfile(result.profile)
+      setProfile(result.profile)
+      setDraft(null)
+      setIsEditing(false)
+      setError(null)
+      setManualResumeText("")
+      setShowManualResumeEntry(false)
+      return
+    }
+
+    if (result.draftProfile) {
+      const savedDraft = await storageManager.saveProfileDraft(result.draftProfile)
+      setDraft(savedDraft)
+      setError(buildDraftErrorMessage(savedDraft.validationErrors))
+      setManualResumeText("")
+      setShowManualResumeEntry(false)
+      return
+    }
+
+    setError("Resume parsing completed without a usable result.")
+  }
+
+  const ensureParserReady = async () => {
+    const status = await refreshParserStatus()
+    if (!status) {
+      throw new Error("Failed to load resume parser service status.")
+    }
+
+    if (!status.ready || !status.provider.reachable) {
+      throw new Error(status.message)
+    }
+
+    return status
+  }
+
+  const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) {
       return
@@ -70,49 +155,38 @@ export function ProfileTab() {
     setIsUploading(true)
     setError(null)
     setParseTime(null)
+    setParseDiagnostics([])
 
     try {
-      const settings = await storageManager.getSettings()
-      setProviderName(getProviderLabel(settings.llmConfig.provider))
-
-      const diagnostics = await testActiveProvider()
-      if (!diagnostics.ok) {
-        throw new Error(diagnostics.message)
-      }
-
+      await ensureParserReady()
       const result = await parseResume(file)
-      if (!result.success) {
-        throw new Error(result.error || "Failed to parse resume.")
-      }
-
-      setParseTime(result.parse_time_ms || null)
-      setProviderStatus("connected")
-
-      if (result.profile) {
-        await storageManager.saveProfile(result.profile)
-        setProfile(result.profile)
-        setDraft(null)
-        setIsEditing(false)
-        setError(null)
-        return
-      }
-
-      if (result.draftProfile) {
-        const savedDraft = await storageManager.saveProfileDraft(result.draftProfile)
-        setDraft(savedDraft)
-        setError(buildDraftErrorMessage(savedDraft.validationErrors))
-        return
-      }
-
-      throw new Error("Resume parsing completed without a usable result.")
+      await applyParseResult(result)
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unknown error")
-      setProviderStatus("disconnected")
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
+      await refreshParserStatus()
+    }
+  }
+
+  const retryWithPastedText = async () => {
+    setIsManualParsing(true)
+    setError(null)
+    setParseTime(null)
+    setParseDiagnostics([])
+
+    try {
+      await ensureParserReady()
+      const result = await parseResumeFromText(manualResumeText)
+      await applyParseResult(result)
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unknown error")
+    } finally {
+      setIsManualParsing(false)
+      await refreshParserStatus()
     }
   }
 
@@ -213,6 +287,9 @@ export function ProfileTab() {
     setDraft(null)
     setError(null)
     setParseTime(null)
+    setParseDiagnostics([])
+    setManualResumeText("")
+    setShowManualResumeEntry(false)
     setIsEditing(false)
   }
 
@@ -235,6 +312,10 @@ export function ProfileTab() {
   const profileValidationErrors = isEditing && profile ? validateProfile(profile).errors : []
   const renderDraft = draft
   const renderWorkHistory = renderDraft ? getDraftWorkHistory(renderDraft) : []
+  const statusState = connectionState(parserStatus)
+  const parserProviderLabel = parserStatus
+    ? getProviderLabel(parserStatus.provider.provider)
+    : "Resume Parser"
 
   return (
     <div className="space-y-4">
@@ -249,24 +330,44 @@ export function ProfileTab() {
 
       <div className="rounded-lg border bg-white p-3 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">{providerName} Status</span>
+          <span className="text-sm font-medium text-gray-700">Resume Parser Service</span>
           <span
             className={`rounded-full px-2 py-1 text-xs ${
-              providerStatus === "connected"
+              statusState === "connected"
                 ? "bg-emerald-100 text-emerald-700"
-                : providerStatus === "disconnected"
+                : statusState === "disconnected"
                   ? "bg-rose-100 text-rose-700"
                   : "bg-slate-100 text-slate-600"
             }`}
           >
-            {providerStatus}
+            {statusState}
           </span>
         </div>
+        {parserStatus && (
+          <div className="mt-2 space-y-1 text-xs text-slate-500">
+            <p>
+              {parserProviderLabel} · {parserStatus.provider.model}
+            </p>
+            <p>{parserStatus.message}</p>
+            {!parserStatus.ocrAvailable && (
+              <p>OCR is unavailable. Install Tesseract to parse scanned PDFs.</p>
+            )}
+          </div>
+        )}
       </div>
 
       {error && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-          {error}
+          <p>{error}</p>
+          {parseDiagnostics.length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs">
+              {parseDiagnostics.map((diagnostic) => (
+                <li key={`${diagnostic.stage}-${diagnostic.code}-${diagnostic.message}`}>
+                  {diagnostic.stage}: {diagnostic.message}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
@@ -291,6 +392,44 @@ export function ProfileTab() {
           >
             {isUploading ? "Parsing..." : "Upload Resume"}
           </button>
+        </div>
+      )}
+
+      {showManualResumeEntry && !renderDraft && (
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="mb-3">
+            <h3 className="font-semibold text-gray-800">Paste Resume Text</h3>
+            <p className="text-xs text-gray-500">
+              File extraction failed. Paste readable resume text and Knight will retry parsing
+              through the sidecar.
+            </p>
+          </div>
+
+          <textarea
+            className="h-40 w-full rounded border px-3 py-2 text-sm"
+            value={manualResumeText}
+            onChange={(event) => setManualResumeText(event.target.value)}
+            placeholder="Paste resume text here..."
+          />
+
+          <div className="mt-3 flex gap-2">
+            <button
+              className="rounded bg-sky-600 px-4 py-2 text-sm text-white"
+              onClick={retryWithPastedText}
+              disabled={isManualParsing}
+            >
+              {isManualParsing ? "Parsing..." : "Parse Pasted Text"}
+            </button>
+            <button
+              className="rounded border px-4 py-2 text-sm text-slate-700"
+              onClick={() => {
+                setShowManualResumeEntry(false)
+                setManualResumeText("")
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
@@ -522,11 +661,15 @@ export function ProfileTab() {
               <h4 className="mb-2 text-xs font-medium uppercase text-gray-500">Recent Experience</h4>
               <div className="space-y-3">
                 {profile.work_history.map((work, index) => (
-                  <div key={`${work.company || "work"}-${index}`} className="rounded border-l-2 border-sky-200 pl-3">
+                  <div
+                    key={`${work.company || "work"}-${index}`}
+                    className="rounded border-l-2 border-sky-200 pl-3"
+                  >
                     <p className="text-sm font-medium text-gray-800">{work.title || "Untitled role"}</p>
                     <p className="text-xs text-gray-600">{work.company || "Unknown company"}</p>
                     <p className="text-xs text-gray-500">
-                      {work.start_date || "Unknown start"} - {work.current ? "Present" : work.end_date || ""}
+                      {work.start_date || "Unknown start"} -{" "}
+                      {work.current ? "Present" : work.end_date || ""}
                     </p>
                   </div>
                 ))}

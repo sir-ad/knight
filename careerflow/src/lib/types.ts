@@ -83,8 +83,70 @@ export interface ProfileDraft {
   source: ProfileDraftSource
 }
 
+export type ResumeParseStatus = "ok" | "repair" | "error"
+
+export type ResumeExtractionSource = "pdf" | "docx" | "txt" | "pasted"
+
+export type ResumeExtractionMethod =
+  | "pdf-text"
+  | "pdf-ocr"
+  | "docx2txt"
+  | "plain-text"
+  | "manual"
+
+export interface ResumeExtractionMetadata {
+  source: ResumeExtractionSource
+  method: ResumeExtractionMethod
+  ok: boolean
+  usedOcr: boolean
+  suspicious?: boolean
+  error?: string
+}
+
+export interface ResumeParseDiagnostic {
+  stage: "service" | "extraction" | "provider" | "validation"
+  code: string
+  message: string
+}
+
+export interface ResumeParserProviderStatus {
+  provider: LLMProvider
+  model: string
+  reachable: boolean
+  message: string
+}
+
+export interface ResumeParserServiceStatus {
+  ok: boolean
+  ready: boolean
+  parserEnabled: boolean
+  serviceUrl: string
+  version?: string
+  message: string
+  ocrAvailable: boolean
+  provider: ResumeParserProviderStatus
+  diagnostics: ResumeParseDiagnostic[]
+}
+
+export interface ResumeParseFileInput {
+  kind: "file"
+  fileName: string
+  mimeType: string
+  arrayBuffer: ArrayBuffer
+}
+
+export interface ResumeParseTextInput {
+  kind: "text"
+  text: string
+  fileName?: string
+  mimeType?: string
+}
+
+export type ResumeParseInput = ResumeParseFileInput | ResumeParseTextInput
+
 export interface ParsedResume {
   success: boolean
+  status?: ResumeParseStatus
   profile?: Profile
   draftProfile?: ProfileDraft
   validationErrors?: string[]
@@ -92,6 +154,8 @@ export interface ParsedResume {
   parse_time_ms?: number
   extracted_text?: string
   raw_response?: unknown
+  extraction?: ResumeExtractionMetadata
+  diagnostics?: ResumeParseDiagnostic[]
 }
 
 export type ATSAdapterName =
@@ -276,6 +340,10 @@ export interface ExtensionSettings {
   autoMode: "smart-defaults" | "manual"
   providerCatalogs: Partial<Record<LLMProvider, ProviderModelCatalog>>
   lastRecommendation?: LLMRecommendation | null
+  parserEnabled: boolean
+  parserServiceUrl: string
+  resumeParseModel: string | null
+  resumeParseProviderOverride: LLMProvider | null
   gmailClientId: string
   gmailConnected: boolean
   lastSync: string | null
@@ -305,6 +373,8 @@ export type RuntimeMessage =
   | { type: "DISCONNECT_GMAIL" }
   | { type: "SYNC_GMAIL" }
   | { type: "GET_GMAIL_STATUS" }
+  | { type: "GET_RESUME_PARSER_STATUS" }
+  | { type: "PARSE_RESUME_WITH_SERVICE"; payload: ResumeParseInput }
   | { type: "TEST_LLM_PROVIDER"; payload?: { config?: Partial<LLMConfig>; apiKey?: string } }
   | { type: "DISCOVER_LLM_MODELS"; payload?: { config?: Partial<LLMConfig>; apiKey?: string } }
   | { type: "GENERATE_LLM_TEXT"; payload: { prompt: string; config?: Partial<LLMConfig>; apiKey?: string } }

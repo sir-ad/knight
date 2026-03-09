@@ -76,7 +76,9 @@
       "https://generativelanguage.googleapis.com/*",
       "https://openrouter.ai/*",
       "http://localhost:11434/*",
-      "http://127.0.0.1:11434/*"
+      "http://127.0.0.1:11434/*",
+      "http://localhost:43118/*",
+      "http://127.0.0.1:43118/*"
     ],
     "permissions": [
       "storage",

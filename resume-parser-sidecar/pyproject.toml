@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knight-resume-parser-sidecar"
+version = "0.1.0"
+description = "Local LangExtract-powered resume parser for Knight"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "sir-ad" }]
+dependencies = [
+  "fastapi>=0.115,<1.0",
+  "uvicorn[standard]>=0.30,<1.0",
+  "langextract[openai]==1.0.6",
+  "PyMuPDF>=1.24,<2.0",
+  "pytesseract>=0.3.10,<1.0",
+  "Pillow>=10,<12",
+  "docx2txt>=0.8,<1.0",
+  "httpx>=0.28,<1.0",
+  "requests>=2.32,<3.0",
+  "pydantic>=2.8,<3.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "pytest-asyncio>=0.24,<1.0"
+]
+
+[project.scripts]
+knight-resume-parser = "resume_parser_sidecar.app:main"
+
+[tool.setuptools.packages.find]
+include = ["resume_parser_sidecar*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
