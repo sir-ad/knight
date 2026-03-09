@@ -166,7 +166,11 @@
             <div class="install-card">
               <h3>Local setup</h3>
               <pre><code>git clone git@github.com:sir-ad/knight.git
-cd knight/careerflow
+cd knight/resume-parser-sidecar
+./scripts/setup-venv.sh
+./scripts/run.sh
+
+cd ../careerflow
 npm install
 OLLAMA_ORIGINS=chrome-extension://* ollama serve
 ollama pull llama3.2:3b
@@ -205,7 +209,7 @@ npm run build
           <div class="repo-grid">
             <article>
               <h3>CI</h3>
-              <p>Typecheck, test, build, and package the extension on every push to the main branch.</p>
+              <p>Typecheck, test, build, and package the extension, then run the Python sidecar test suite with Tesseract installed.</p>
             </article>
             <article>
               <h3>Pages</h3>

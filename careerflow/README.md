@@ -63,6 +63,14 @@ npm run typecheck
 npm test -- --runInBand
 ```
 
+Sidecar validation:
+
+```bash
+cd ../resume-parser-sidecar
+source .venv/bin/activate
+pytest tests -q
+```
+
 ## Load In Chrome
 
 1. Run `npm run build`

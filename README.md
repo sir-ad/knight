@@ -32,6 +32,14 @@ Website: [sir-ad.github.io/knight](https://sir-ad.github.io/knight/)
 
 ```bash
 git clone git@github.com:sir-ad/knight.git
+cd knight/resume-parser-sidecar
+./scripts/setup-venv.sh
+./scripts/run.sh
+```
+
+In another terminal:
+
+```bash
 cd knight/careerflow
 npm install
 npm run build
@@ -77,9 +85,17 @@ npm run build
 npm run package
 ```
 
+From [`resume-parser-sidecar`](./resume-parser-sidecar):
+
+```bash
+source .venv/bin/activate
+pytest tests -q
+```
+
 ## Release Artifacts
 
 - CI verifies typecheck, tests, build, and packaged extension output
+- CI also installs `tesseract-ocr` and runs the sidecar `pytest` suite
 - Release workflow attaches the packaged Chrome extension zip to GitHub Releases
 - Pages workflow deploys the docs site from [`docs`](./docs)
 
@@ -92,3 +108,4 @@ npm run package
 - Confidential research docs are intentionally excluded from version control.
 - Local tool settings in `.claude/` are also ignored.
 - Product and implementation details for the extension live in [`careerflow/README.md`](./careerflow/README.md).
+- Local parser service details live in [`resume-parser-sidecar/README.md`](./resume-parser-sidecar/README.md).

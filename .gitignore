@@ -11,3 +11,11 @@ careerflow/*.crx
 careerflow/*.pem
 
 docs/.DS_Store
+
+resume-parser-sidecar/.venv/
+resume-parser-sidecar/.pytest_cache/
+resume-parser-sidecar/.mypy_cache/
+resume-parser-sidecar/.ruff_cache/
+resume-parser-sidecar/dist/
+resume-parser-sidecar/*.egg-info/
+resume-parser-sidecar/**/__pycache__/

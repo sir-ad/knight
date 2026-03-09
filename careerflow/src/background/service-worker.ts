@@ -1,4 +1,8 @@
 import { setupAlarms, handleAlarm, ALARM_NAMES } from "./alarm-manager"
+import {
+  getResumeParserServiceStatus,
+  parseResumeWithParserService,
+} from "./resume-parser-service"
 import { gmailClient } from "./gmail-client"
 import { ApplicationTracker } from "../lib/application-tracker"
 import { classifyEmail } from "../lib/email-classifier"

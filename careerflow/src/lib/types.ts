@@ -72,12 +72,90 @@ export interface Profile {
   meta?: ProfileMeta
 }
 
+export type ProfileDraftSource = "parse" | "recovered"
+
+export interface ProfileDraft {
+  profile: Profile
+  validationErrors: string[]
+  extractedText: string
+  rawResponse?: unknown
+  updatedAt: string
+  source: ProfileDraftSource
+}
+
+export type ResumeParseStatus = "ok" | "repair" | "error"
+
+export type ResumeExtractionSource = "pdf" | "docx" | "txt" | "pasted"
+
+export type ResumeExtractionMethod =
+  | "pdf-text"
+  | "pdf-ocr"
+  | "docx2txt"
+  | "plain-text"
+  | "manual"
+
+export interface ResumeExtractionMetadata {
+  source: ResumeExtractionSource
+  method: ResumeExtractionMethod
+  ok: boolean
+  usedOcr: boolean
+  suspicious?: boolean
+  error?: string
+}
+
+export interface ResumeParseDiagnostic {
+  stage: "service" | "extraction" | "provider" | "validation"
+  code: string
+  message: string
+}
+
+export interface ResumeParserProviderStatus {
+  provider: LLMProvider
+  model: string
+  reachable: boolean
+  message: string
+}
+
+export interface ResumeParserServiceStatus {
+  ok: boolean
+  ready: boolean
+  parserEnabled: boolean
+  serviceUrl: string
+  version?: string
+  message: string
+  ocrAvailable: boolean
+  provider: ResumeParserProviderStatus
+  diagnostics: ResumeParseDiagnostic[]
+}
+
+export interface ResumeParseFileInput {
+  kind: "file"
+  fileName: string
+  mimeType: string
+  arrayBuffer: ArrayBuffer
+}
+
+export interface ResumeParseTextInput {
+  kind: "text"
+  text: string
+  fileName?: string
+  mimeType?: string
+}
+
+export type ResumeParseInput = ResumeParseFileInput | ResumeParseTextInput
+
 export interface ParsedResume {
   success: boolean
+  status?: ResumeParseStatus
   profile?: Profile
+  draftProfile?: ProfileDraft
+  validationErrors?: string[]
   error?: string
   parse_time_ms?: number
   extracted_text?: string
+  raw_response?: unknown
+  extraction?: ResumeExtractionMetadata
+  diagnostics?: ResumeParseDiagnostic[]
 }
 
 export type ATSAdapterName =

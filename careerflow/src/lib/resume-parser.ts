@@ -15,62 +15,25 @@ async function readArrayBuffer(file: File): Promise<ArrayBuffer> {
   })
 }
 
-function hasMagicNumber(arrayBuffer: ArrayBuffer, bytes: number[]): boolean {
-  const view = new Uint8Array(arrayBuffer.slice(0, bytes.length))
-  return bytes.every((byte, index) => view[index] === byte)
-}
-
-async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
-  if (!hasMagicNumber(arrayBuffer, [0x25, 0x50, 0x44, 0x46])) {
-    return new TextDecoder()
-      .decode(arrayBuffer)
-      .replace(/[^\x20-\x7E\n\r\t]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
+function inferMimeType(file: File): string {
+  if (file.type) {
+    return file.type
   }
 
-  try {
-    const pdfParseModule = await import("pdf-parse")
-    const pdfParse = (pdfParseModule.default || pdfParseModule) as (
-      data: Uint8Array
-    ) => Promise<{ text?: string }>
-
-    const result = await pdfParse(new Uint8Array(arrayBuffer))
-    return result.text?.trim() || ""
-  } catch {
-    return new TextDecoder()
-      .decode(arrayBuffer)
-      .replace(/[^\x20-\x7E\n\r\t]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-  }
-}
-
-async function extractTextFromDOCX(arrayBuffer: ArrayBuffer): Promise<string> {
-  if (!hasMagicNumber(arrayBuffer, [0x50, 0x4b])) {
-    return new TextDecoder()
-      .decode(arrayBuffer)
-      .replace(/<[^>]+>/g, " ")
-      .replace(/[^\x20-\x7E\n\r\t]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
+  const name = file.name.toLowerCase()
+  if (name.endsWith(".pdf")) {
+    return "application/pdf"
   }
 
-  try {
-    const result = await mammoth.extractRawText({ arrayBuffer })
-    return result.value.trim()
-  } catch {
-    return new TextDecoder()
-      .decode(arrayBuffer)
-      .replace(/<[^>]+>/g, " ")
-      .replace(/[^\x20-\x7E\n\r\t]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
+  if (name.endsWith(".docx")) {
+    return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   }
-}
 
-async function extractTextFromTXT(arrayBuffer: ArrayBuffer): Promise<string> {
-  return new TextDecoder().decode(arrayBuffer).trim()
+  if (name.endsWith(".txt")) {
+    return "text/plain"
+  }
+
+  return ""
 }
 
 function buildResumeExtractionPrompt(resumeText: string): string {
@@ -157,35 +120,21 @@ export async function extractTextFromFile(file: File): Promise<string> {
   }
 
   if (
-    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    file.name.toLowerCase().endsWith(".docx")
+    mimeType === "application/pdf" ||
+    mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    mimeType === "text/plain" ||
+    name.endsWith(".pdf") ||
+    name.endsWith(".docx") ||
+    name.endsWith(".txt")
   ) {
-    const arrayBuffer = await readArrayBuffer(file)
-    return extractTextFromDOCX(arrayBuffer)
-  }
-
-  if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
-    const arrayBuffer = await readArrayBuffer(file)
-    return extractTextFromTXT(arrayBuffer)
+    return
   }
 
   throw new Error("Unsupported file format. Please upload PDF, DOCX, or TXT.")
 }
 
-export async function parseResume(file: File): Promise<ParsedResume> {
-  const startedAt = Date.now()
-
-  try {
-    const resumeText = await extractTextFromFile(file)
-
-    if (resumeText.length < 40) {
-      return {
-        success: false,
-        error: "Could not extract enough text from the resume.",
-        parse_time_ms: Date.now() - startedAt,
-        extracted_text: resumeText,
-      }
-    }
+async function toFileInput(file: File): Promise<ResumeParseFileInput> {
+  validateSupportedFile(file)
 
     const profile = await generateStructuredWithActiveProvider<Profile>(
       buildResumeExtractionPrompt(resumeText),
@@ -210,37 +159,34 @@ export async function parseResume(file: File): Promise<ParsedResume> {
   }
 }
 
-export function validateProfile(profile: Profile): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
+export async function extractTextFromFile(file: File): Promise<string> {
+  const result = await parseResumeWithService(await toFileInput(file))
 
-  if (!profile.identity?.name?.trim()) {
-    errors.push("Name is required")
+  if (!result.success && !result.extracted_text) {
+    throw new Error(result.error || "Failed to extract text from resume.")
   }
 
-  if (!profile.identity?.email?.trim()) {
-    errors.push("Email is required")
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.identity.email)) {
-    errors.push("Invalid email format")
-  }
-
-  if (!profile.work_history || profile.work_history.length === 0) {
-    errors.push("At least one work experience is required")
-  }
-
-  profile.work_history?.forEach((work, index) => {
-    if (!work.company) {
-      errors.push(`Work experience ${index + 1}: Company is required`)
-    }
-    if (!work.title) {
-      errors.push(`Work experience ${index + 1}: Title is required`)
-    }
-    if (!work.start_date) {
-      errors.push(`Work experience ${index + 1}: Start date is required`)
-    }
-  })
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  }
+  return result.extracted_text || ""
 }
+
+export async function parseResume(file: File): Promise<ParsedResume> {
+  return parseResumeWithService(await toFileInput(file))
+}
+
+export async function parseResumeFromText(text: string): Promise<ParsedResume> {
+  const trimmed = text.trim()
+  if (!trimmed) {
+    return {
+      success: false,
+      status: "error",
+      error: "Paste some resume text before retrying parse.",
+    }
+  }
+
+  return parseResumeWithService({
+    kind: "text",
+    text: trimmed,
+  })
+}
+
+export { createProfileDraft, normalizeProfileCandidate, validateProfile } from "./profile-safety"
