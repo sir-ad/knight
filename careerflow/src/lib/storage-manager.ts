@@ -3,13 +3,21 @@ import type {
   ExtensionSettings,
   OllamaProviderSettings,
   Profile,
+  ProfileDraft,
   ProviderSecretStore,
   ProviderSettings,
 } from "./types"
 import type { LLMProvider } from "./llm/types"
+import {
+  createProfileDraft,
+  normalizeProfileCandidate,
+  normalizeProfileDraftCandidate,
+  validateProfile,
+} from "./profile-safety"
 
 export const STORAGE_KEYS = {
   PROFILE: "careerflow_profile",
+  PROFILE_DRAFT: "careerflow_profile_draft",
   SETTINGS: "careerflow_settings",
   APPLICATIONS: "careerflow_applications",
   GMAIL_TOKEN: "careerflow_gmail_token",
@@ -112,6 +120,8 @@ export class ChromeStorageManager {
       STORAGE_KEYS.GMAIL_TOKEN,
       LEGACY_KEYS.GMAIL_TOKEN,
       STORAGE_KEYS.SETTINGS,
+      STORAGE_KEYS.PROFILE,
+      STORAGE_KEYS.PROFILE_DRAFT,
       STORAGE_KEYS.PROVIDER_SECRETS,
     ])
 
@@ -134,6 +144,20 @@ export class ChromeStorageManager {
       updates[STORAGE_KEYS.SETTINGS] = this.normalizeSettings(
         result[STORAGE_KEYS.SETTINGS] as Partial<ExtensionSettings>
       )
+    }
+
+    if (result[STORAGE_KEYS.PROFILE]) {
+      const normalizedProfile = normalizeProfileCandidate(result[STORAGE_KEYS.PROFILE])
+      const validation = validateProfile(normalizedProfile)
+      if (!validation.valid) {
+        updates[STORAGE_KEYS.PROFILE_DRAFT] =
+          result[STORAGE_KEYS.PROFILE_DRAFT] ||
+          createProfileDraft(result[STORAGE_KEYS.PROFILE], {
+            rawResponse: result[STORAGE_KEYS.PROFILE],
+            source: "recovered",
+          })
+        removals.push(STORAGE_KEYS.PROFILE)
+      }
     }
 
     if (Object.keys(updates).length > 0) {
@@ -163,17 +187,75 @@ export class ChromeStorageManager {
     const result = await getLocalStorage<Record<string, Profile | undefined>>(
       STORAGE_KEYS.PROFILE
     )
-    return result[STORAGE_KEYS.PROFILE] || null
+    const storedProfile = result[STORAGE_KEYS.PROFILE]
+    if (!storedProfile) {
+      return null
+    }
+
+    const normalizedProfile = normalizeProfileCandidate(storedProfile)
+    const validation = validateProfile(normalizedProfile)
+
+    if (!validation.valid) {
+      await this.saveProfileDraft(
+        createProfileDraft(storedProfile, {
+          rawResponse: storedProfile,
+          source: "recovered",
+        })
+      )
+      await chrome.storage.local.remove(STORAGE_KEYS.PROFILE)
+      return null
+    }
+
+    return normalizedProfile
   }
 
   async saveProfile(profile: Profile): Promise<void> {
+    const normalizedProfile = normalizeProfileCandidate(profile)
+    const validation = validateProfile(normalizedProfile)
+
+    if (!validation.valid) {
+      throw new Error(validation.errors.join(", "))
+    }
+
     await setLocalStorage({
-      [STORAGE_KEYS.PROFILE]: profile,
+      [STORAGE_KEYS.PROFILE]: normalizedProfile,
     })
+    await chrome.storage.local.remove(STORAGE_KEYS.PROFILE_DRAFT)
   }
 
   async deleteProfile(): Promise<void> {
     await chrome.storage.local.remove(STORAGE_KEYS.PROFILE)
+  }
+
+  async getProfileDraft(): Promise<ProfileDraft | null> {
+    await this.migrateLegacyData()
+    const result = await getLocalStorage<Record<string, ProfileDraft | undefined>>(
+      STORAGE_KEYS.PROFILE_DRAFT
+    )
+    return normalizeProfileDraftCandidate(result[STORAGE_KEYS.PROFILE_DRAFT]) || null
+  }
+
+  async saveProfileDraft(draft: ProfileDraft): Promise<ProfileDraft> {
+    const normalizedDraft = createProfileDraft(draft.profile, {
+      extractedText: draft.extractedText,
+      rawResponse: draft.rawResponse,
+      source: draft.source,
+      updatedAt: new Date().toISOString(),
+    })
+
+    await setLocalStorage({
+      [STORAGE_KEYS.PROFILE_DRAFT]: normalizedDraft,
+    })
+
+    return normalizedDraft
+  }
+
+  async deleteProfileDraft(): Promise<void> {
+    await chrome.storage.local.remove(STORAGE_KEYS.PROFILE_DRAFT)
+  }
+
+  async clearProfileData(): Promise<void> {
+    await chrome.storage.local.remove([STORAGE_KEYS.PROFILE, STORAGE_KEYS.PROFILE_DRAFT])
   }
 
   async getSettings(): Promise<ExtensionSettings> {

@@ -1,6 +1,9 @@
 import mammoth from "mammoth"
+import { createProfileDraft, normalizeProfileCandidate, validateProfile } from "./profile-safety"
 import { generateStructuredWithActiveProvider } from "./runtime-client"
 import type { ParsedResume, Profile } from "./types"
+
+const MAX_RESUME_TEXT_CHARS = 20000
 
 async function readArrayBuffer(file: File): Promise<ArrayBuffer> {
   if (typeof file.arrayBuffer === "function") {
@@ -150,6 +153,16 @@ ${resumeText}
 Return ONLY valid JSON, no markdown formatting or explanations. Use null for missing values. Dates should be in YYYY-MM-DD format where possible, or YYYY if full date not available.`
 }
 
+function clampResumeText(resumeText: string): string {
+  if (resumeText.length <= MAX_RESUME_TEXT_CHARS) {
+    return resumeText
+  }
+
+  const head = resumeText.slice(0, 12000)
+  const tail = resumeText.slice(-6000)
+  return `${head}\n\n[... truncated for model context ...]\n\n${tail}`
+}
+
 export async function extractTextFromFile(file: File): Promise<string> {
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
     const arrayBuffer = await readArrayBuffer(file)
@@ -187,19 +200,39 @@ export async function parseResume(file: File): Promise<ParsedResume> {
       }
     }
 
-    const profile = await generateStructuredWithActiveProvider<Profile>(
-      buildResumeExtractionPrompt(resumeText),
+    const rawResponse = await generateStructuredWithActiveProvider<unknown>(
+      buildResumeExtractionPrompt(clampResumeText(resumeText)),
       {
         temperature: 0.2,
         maxTokens: 2500,
       }
     )
+    const normalizedProfile = normalizeProfileCandidate(rawResponse)
+    const validation = validateProfile(normalizedProfile)
+
+    if (!validation.valid) {
+      const draftProfile = createProfileDraft(normalizedProfile, {
+        extractedText: resumeText,
+        rawResponse,
+        source: "parse",
+      })
+
+      return {
+        success: true,
+        draftProfile,
+        validationErrors: validation.errors,
+        parse_time_ms: Date.now() - startedAt,
+        extracted_text: resumeText,
+        raw_response: rawResponse,
+      }
+    }
 
     return {
       success: true,
-      profile,
+      profile: normalizedProfile,
       parse_time_ms: Date.now() - startedAt,
       extracted_text: resumeText,
+      raw_response: rawResponse,
     }
   } catch (error) {
     return {
@@ -210,37 +243,4 @@ export async function parseResume(file: File): Promise<ParsedResume> {
   }
 }
 
-export function validateProfile(profile: Profile): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
-
-  if (!profile.identity?.name?.trim()) {
-    errors.push("Name is required")
-  }
-
-  if (!profile.identity?.email?.trim()) {
-    errors.push("Email is required")
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.identity.email)) {
-    errors.push("Invalid email format")
-  }
-
-  if (!profile.work_history || profile.work_history.length === 0) {
-    errors.push("At least one work experience is required")
-  }
-
-  profile.work_history?.forEach((work, index) => {
-    if (!work.company) {
-      errors.push(`Work experience ${index + 1}: Company is required`)
-    }
-    if (!work.title) {
-      errors.push(`Work experience ${index + 1}: Title is required`)
-    }
-    if (!work.start_date) {
-      errors.push(`Work experience ${index + 1}: Start date is required`)
-    }
-  })
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  }
-}
+export { createProfileDraft, normalizeProfileCandidate, validateProfile } from "./profile-safety"

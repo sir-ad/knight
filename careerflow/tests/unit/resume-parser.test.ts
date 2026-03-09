@@ -6,6 +6,22 @@ jest.mock('../../src/lib/runtime-client', () => ({
   generateStructuredWithActiveProvider: jest.fn(),
 }));
 
+class FunctionalTextDecoder {
+  decode(input?: BufferSource): string {
+    if (!input) {
+      return ''
+    }
+
+    if (input instanceof ArrayBuffer) {
+      return Buffer.from(new Uint8Array(input)).toString('utf8')
+    }
+
+    return Buffer.from(
+      input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength)
+    ).toString('utf8')
+  }
+}
+
 class CustomFileReader {
   result: ArrayBuffer | null = null;
   error: Error | null = null;
@@ -30,6 +46,7 @@ class CustomFileReader {
 describe('resume-parser', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (global as any).TextDecoder = FunctionalTextDecoder;
   });
 
   describe('PDF extraction', () => {
@@ -416,6 +433,113 @@ describe('resume-parser', () => {
 
       const result = await parseResume(mockFile);
       expect(result.success).toBeDefined();
+
+      (global as any).FileReader = originalFileReader;
+    });
+
+    it('should return a repair draft when identity is missing', async () => {
+      const pdfContent = 'stream\n' + 'B'.repeat(240) + '\nendstream';
+      const encoder = new TextEncoder();
+      const pdfBuffer = encoder.encode(pdfContent);
+
+      const mockFile = new File([pdfBuffer], 'resume.pdf', { type: 'application/pdf' });
+
+      const originalFileReader = (global as any).FileReader;
+      class TestFileReader extends CustomFileReader {
+        readAsArrayBuffer() {
+          this.result = pdfBuffer.buffer;
+          setTimeout(() => {
+            if (this.onload) {
+              this.onload({ target: this } as ProgressEvent<FileReader>);
+            }
+          }, 0);
+        }
+      }
+      (global as any).FileReader = TestFileReader;
+
+      (generateStructuredWithActiveProvider as jest.Mock).mockResolvedValue({
+        work_history: [{ company: 'Acme', title: 'Engineer', start_date: '2020-01-01' }],
+      });
+
+      const result = await parseResume(mockFile);
+
+      expect(result.success).toBe(true);
+      expect(result.profile).toBeUndefined();
+      expect(result.draftProfile).toBeDefined();
+      expect(result.validationErrors).toContain('Name is required');
+      expect(result.validationErrors).toContain('Email is required');
+      expect(result.raw_response).toBeDefined();
+
+      (global as any).FileReader = originalFileReader;
+    });
+
+    it('should return a repair draft when work history is missing', async () => {
+      const pdfContent = 'stream\n' + 'C'.repeat(240) + '\nendstream';
+      const encoder = new TextEncoder();
+      const pdfBuffer = encoder.encode(pdfContent);
+
+      const mockFile = new File([pdfBuffer], 'resume.pdf', { type: 'application/pdf' });
+
+      const originalFileReader = (global as any).FileReader;
+      class TestFileReader extends CustomFileReader {
+        readAsArrayBuffer() {
+          this.result = pdfBuffer.buffer;
+          setTimeout(() => {
+            if (this.onload) {
+              this.onload({ target: this } as ProgressEvent<FileReader>);
+            }
+          }, 0);
+        }
+      }
+      (global as any).FileReader = TestFileReader;
+
+      (generateStructuredWithActiveProvider as jest.Mock).mockResolvedValue({
+        identity: { name: 'John Doe', email: 'john@example.com' },
+      });
+
+      const result = await parseResume(mockFile);
+
+      expect(result.success).toBe(true);
+      expect(result.profile).toBeUndefined();
+      expect(result.draftProfile).toBeDefined();
+      expect(result.validationErrors).toContain('At least one work experience is required');
+
+      (global as any).FileReader = originalFileReader;
+    });
+
+    it('should normalize partial provider output into an editable draft', async () => {
+      const pdfContent = 'stream\n' + 'D'.repeat(240) + '\nendstream';
+      const encoder = new TextEncoder();
+      const pdfBuffer = encoder.encode(pdfContent);
+
+      const mockFile = new File([pdfBuffer], 'resume.pdf', { type: 'application/pdf' });
+
+      const originalFileReader = (global as any).FileReader;
+      class TestFileReader extends CustomFileReader {
+        readAsArrayBuffer() {
+          this.result = pdfBuffer.buffer;
+          setTimeout(() => {
+            if (this.onload) {
+              this.onload({ target: this } as ProgressEvent<FileReader>);
+            }
+          }, 0);
+        }
+      }
+      (global as any).FileReader = TestFileReader;
+
+      (generateStructuredWithActiveProvider as jest.Mock).mockResolvedValue({
+        identity: { name: 'John Doe' },
+        work_history: [{}],
+      });
+
+      const result = await parseResume(mockFile);
+
+      expect(result.success).toBe(true);
+      expect(result.draftProfile?.profile.identity.name).toBe('John Doe');
+      expect(result.draftProfile?.profile.identity.email).toBe('');
+      expect(result.draftProfile?.profile.work_history[0].company).toBe('');
+      expect(result.validationErrors).toContain('Email is required');
+      expect(result.validationErrors).toContain('Work experience 1: Company is required');
 
       (global as any).FileReader = originalFileReader;
     });

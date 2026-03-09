@@ -72,12 +72,26 @@ export interface Profile {
   meta?: ProfileMeta
 }
 
+export type ProfileDraftSource = "parse" | "recovered"
+
+export interface ProfileDraft {
+  profile: Profile
+  validationErrors: string[]
+  extractedText: string
+  rawResponse?: unknown
+  updatedAt: string
+  source: ProfileDraftSource
+}
+
 export interface ParsedResume {
   success: boolean
   profile?: Profile
+  draftProfile?: ProfileDraft
+  validationErrors?: string[]
   error?: string
   parse_time_ms?: number
   extracted_text?: string
+  raw_response?: unknown
 }
 
 export type ATSAdapterName =
