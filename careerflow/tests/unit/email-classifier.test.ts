@@ -2,13 +2,36 @@ import {
   classifyEmail,
   extractApplicationData,
 } from '../../src/lib/email-classifier';
-import { ollamaClient } from '../../src/lib/ollama-client';
+import { generateProviderStructured } from '../../src/lib/llm/provider-service';
+import { storageManager } from '../../src/lib/storage-manager';
 
-jest.mock('../../src/lib/ollama-client');
+jest.mock('../../src/lib/llm/provider-service', () => ({
+  generateProviderStructured: jest.fn(),
+  buildLLMConfig: jest.fn(() => ({
+    provider: 'ollama',
+    model: 'llama3.2:3b',
+    endpoint: 'http://localhost:11434',
+  })),
+}));
+
+jest.mock('../../src/lib/storage-manager', () => ({
+  storageManager: {
+    getSettings: jest.fn(),
+    getProviderSecrets: jest.fn(),
+  },
+}));
 
 describe('email-classifier', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (storageManager.getSettings as jest.Mock).mockResolvedValue({
+      llmConfig: {
+        provider: 'ollama',
+        endpoint: 'http://localhost:11434',
+        model: 'llama3.2:3b',
+      },
+    });
+    (storageManager.getProviderSecrets as jest.Mock).mockResolvedValue({});
   });
 
   describe('confirmation email classification', () => {
@@ -19,7 +42,7 @@ describe('email-classifier', () => {
         body: 'Thank you for applying for the Software Engineer position at Google. We have received your application and will review it shortly.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'confirmation',
         confidence: 0.95,
         company: 'Google',
@@ -44,7 +67,7 @@ describe('email-classifier', () => {
         body: 'Thank you for applying. Your application has been successfully submitted.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -59,7 +82,7 @@ describe('email-classifier', () => {
         body: 'Thank you for your application.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'confirmation',
         confidence: 0.9,
         company: null,
@@ -81,7 +104,7 @@ describe('email-classifier', () => {
         body: 'We acknowledge application received for your submission.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -95,7 +118,7 @@ describe('email-classifier', () => {
         body: 'Your application was successfully submitted.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -111,7 +134,7 @@ describe('email-classifier', () => {
         body: 'We would like to invite you for a technical interview for the Software Engineer position. Please select a time slot for your phone screen.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'interview_invite',
         confidence: 0.92,
         company: 'Meta',
@@ -134,7 +157,7 @@ describe('email-classifier', () => {
         body: 'We would like to schedule an interview with you next week.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -148,7 +171,7 @@ describe('email-classifier', () => {
         body: 'We would like to conduct a phone screen with you.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -162,7 +185,7 @@ describe('email-classifier', () => {
         body: 'Your technical interview is scheduled for next Monday.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -176,7 +199,7 @@ describe('email-classifier', () => {
         body: 'Welcome to your onsite interview at our office.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -190,7 +213,7 @@ describe('email-classifier', () => {
         body: 'Please complete the video interview at your convenience.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -204,7 +227,7 @@ describe('email-classifier', () => {
         body: 'Your interview is scheduled for 2024-03-15 at 10:00 AM.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'interview_invite',
         confidence: 0.9,
         company: 'Company',
@@ -228,7 +251,7 @@ describe('email-classifier', () => {
         body: 'Unfortunately, we regret to inform you that we will not be proceeding with your application for the Software Engineer position at Amazon.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'rejection',
         confidence: 0.88,
         company: 'Amazon',
@@ -252,7 +275,7 @@ describe('email-classifier', () => {
         body: 'Unfortunately, we have decided to move forward with other candidates.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -266,7 +289,7 @@ describe('email-classifier', () => {
         body: 'We are not moving forward with your application at this time.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -280,7 +303,7 @@ describe('email-classifier', () => {
         body: 'We regret to inform you that the position has been filled.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -294,7 +317,7 @@ describe('email-classifier', () => {
         body: 'The position has been filled. Thank you for your interest.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -308,7 +331,7 @@ describe('email-classifier', () => {
         body: 'We have selected other candidates for the next round.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -322,7 +345,7 @@ describe('email-classifier', () => {
         body: 'We regret to inform you that your application was rejected for the position.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -338,7 +361,7 @@ describe('email-classifier', () => {
         body: 'We are pleased to offer you the position of Software Engineer at Netflix. Please find attached the formal offer letter with details of your employment offer.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'offer',
         confidence: 0.95,
         company: 'Netflix',
@@ -362,7 +385,7 @@ describe('email-classifier', () => {
         body: 'We are pleased to offer you the position.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -376,7 +399,7 @@ describe('email-classifier', () => {
         body: 'Congratulations! We would like to welcome you to our team.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -390,7 +413,7 @@ describe('email-classifier', () => {
         body: 'Please review the job offer details attached.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -404,7 +427,7 @@ describe('email-classifier', () => {
         body: 'Attached is your formal offer letter.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -418,7 +441,7 @@ describe('email-classifier', () => {
         body: 'This employment offer is contingent upon background check.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -432,7 +455,7 @@ describe('email-classifier', () => {
         body: 'We are excited to offer you this opportunity to join us.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -448,7 +471,7 @@ describe('email-classifier', () => {
         body: 'Thank you for applying.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -462,7 +485,7 @@ describe('email-classifier', () => {
         body: 'Thank you for applying.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -476,7 +499,7 @@ describe('email-classifier', () => {
         body: 'Thank you for applying at Microsoft for the Engineer role.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -492,7 +515,7 @@ describe('email-classifier', () => {
         body: 'Thank you for applying.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -506,7 +529,7 @@ describe('email-classifier', () => {
         body: 'Position: Senior Software Engineer at our company.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -520,7 +543,7 @@ describe('email-classifier', () => {
         body: 'Role: Product Manager for the mobile team.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -534,7 +557,7 @@ describe('email-classifier', () => {
         body: 'Application for: Data Scientist position.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateProviderStructured as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await classifyEmail(emailContent);
 
@@ -550,7 +573,7 @@ describe('email-classifier', () => {
         body: 'Here are the latest technology news updates.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'other',
         confidence: 0.8,
         company: null,
@@ -574,7 +597,7 @@ describe('email-classifier', () => {
         body: 'We invite you for an interview.',
       };
 
-      (ollamaClient.generateStructured as jest.Mock).mockResolvedValue({
+      (generateProviderStructured as jest.Mock).mockResolvedValue({
         classification: 'interview_invite',
         confidence: 0.9,
         company: 'Company',

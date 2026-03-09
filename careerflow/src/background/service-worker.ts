@@ -3,17 +3,104 @@ import { gmailClient } from "./gmail-client"
 import { ApplicationTracker } from "../lib/application-tracker"
 import { classifyEmail } from "../lib/email-classifier"
 import * as db from "../lib/db"
-import { storageManager } from "../lib/storage-manager"
+import { storageManager, normalizeProviderSettings } from "../lib/storage-manager"
+import {
+  buildLLMConfig,
+  diagnoseProvider,
+  discoverProviderModels,
+  generateProviderChat,
+  generateProviderStructured,
+  generateProviderText,
+  providerSupportsApiKey,
+  recommendLLMConfiguration,
+} from "../lib/llm/provider-service"
+import { SUPPORTED_PORTALS } from "../lib/supported-portals"
 import type {
   ApplicationLogPayload,
   ApplicationStatus,
   ATSAdapterName,
   GmailStatus,
+  ProviderModelCatalog,
+  ProviderSecretStore,
+  ProviderSettings,
   RuntimeMessage,
   RuntimeResponse,
 } from "../lib/types"
+import type { LLMConfig } from "../lib/llm/types"
 
 const applicationTracker = new ApplicationTracker()
+
+async function resolveLLMRequest(payload?: {
+  config?: Partial<LLMConfig>
+  apiKey?: string
+}): Promise<{
+  config: LLMConfig
+  secrets: ProviderSecretStore
+  settings: Awaited<ReturnType<typeof storageManager.getSettings>>
+  providerSettings: ProviderSettings
+}> {
+  const [settings, storedSecrets] = await Promise.all([
+    storageManager.getSettings(),
+    storageManager.getProviderSecrets(),
+  ])
+
+  const providerSettings = normalizeProviderSettings({
+    ...(settings.llmConfig as ProviderSettings),
+    ...(payload?.config || {}),
+  })
+
+  const secrets = { ...storedSecrets }
+  if (providerSupportsApiKey(providerSettings.provider) && payload?.apiKey) {
+    secrets[providerSettings.provider] = payload.apiKey.trim()
+  }
+
+  return {
+    config: buildLLMConfig(providerSettings, secrets, payload?.config),
+    secrets,
+    settings,
+    providerSettings,
+  }
+}
+
+async function persistCatalogAndRecommendation(
+  catalog: ProviderModelCatalog,
+  settings: Awaited<ReturnType<typeof storageManager.getSettings>>,
+  secrets: ProviderSecretStore,
+  providerSettings: ProviderSettings
+) {
+  const nextCatalogs = {
+    ...settings.providerCatalogs,
+    [catalog.provider]: catalog,
+  }
+
+  const nextConfig =
+    settings.autoMode === "smart-defaults"
+      ? normalizeProviderSettings({
+          ...providerSettings,
+          model: catalog.recommendedModel,
+          ...(providerSettings.provider === "ollama" && catalog.endpoint
+            ? { endpoint: catalog.endpoint }
+            : {}),
+        })
+      : settings.llmConfig
+
+  const recommendation = recommendLLMConfiguration(
+    {
+      ...settings,
+      llmConfig: nextConfig,
+      providerCatalogs: nextCatalogs,
+    },
+    secrets
+  )
+
+  await storageManager.saveSettings({
+    llmConfig: nextConfig,
+    providerCatalogs: nextCatalogs,
+    lastRecommendation: recommendation,
+  })
+
+  return recommendation
+}
 
 function mapClassificationToStatus(classification: string): ApplicationStatus {
   switch (classification) {
@@ -241,6 +328,71 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
           sendResponse({
             success: true,
             data: await syncEmails(),
+          } satisfies RuntimeResponse)
+          break
+
+        case "TEST_LLM_PROVIDER": {
+          const { config } = await resolveLLMRequest(message.payload)
+          sendResponse({
+            success: true,
+            data: await diagnoseProvider(config),
+          } satisfies RuntimeResponse)
+          break
+        }
+
+        case "DISCOVER_LLM_MODELS": {
+          const { config, secrets, settings, providerSettings } = await resolveLLMRequest(
+            message.payload
+          )
+          const catalog = await discoverProviderModels(config)
+          const recommendation = await persistCatalogAndRecommendation(
+            catalog,
+            settings,
+            secrets,
+            providerSettings
+          )
+
+          sendResponse({
+            success: true,
+            data: {
+              catalog,
+              recommendation,
+            },
+          } satisfies RuntimeResponse)
+          break
+        }
+
+        case "GENERATE_LLM_TEXT": {
+          const { config } = await resolveLLMRequest(message.payload)
+          sendResponse({
+            success: true,
+            data: await generateProviderText(config, message.payload.prompt),
+          } satisfies RuntimeResponse<string>)
+          break
+        }
+
+        case "GENERATE_LLM_STRUCTURED": {
+          const { config } = await resolveLLMRequest(message.payload)
+          sendResponse({
+            success: true,
+            data: await generateProviderStructured(config, message.payload.prompt),
+          } satisfies RuntimeResponse)
+          break
+        }
+
+        case "GENERATE_LLM_CHAT": {
+          const { config } = await resolveLLMRequest(message.payload)
+          sendResponse({
+            success: true,
+            data: await generateProviderChat(config, message.payload.messages),
+          } satisfies RuntimeResponse<string>)
+          break
+        }
+
+        case "GET_SUPPORTED_PORTALS":
+          sendResponse({
+            success: true,
+            data: SUPPORTED_PORTALS,
           } satisfies RuntimeResponse)
           break
 

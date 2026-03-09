@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react"
+import { getSupportedPortals, sendRuntimeMessage } from "../../lib/runtime-client"
 import { storageManager } from "../../lib/storage-manager"
-import type { GmailStatus, RuntimeResponse } from "../../lib/types"
+import type { GmailStatus, SupportedPortalDefinition } from "../../lib/types"
 import { LLMProviderConfig } from "./LLMProviderConfig"
-
-async function sendRuntimeMessage<T>(
-  message: { type: string }
-): Promise<RuntimeResponse<T>> {
-  return chrome.runtime.sendMessage(message) as Promise<RuntimeResponse<T>>
-}
 
 export const SettingsTab: React.FC = () => {
   const [gmailStatus, setGmailStatus] = useState<GmailStatus>({
@@ -18,6 +13,7 @@ export const SettingsTab: React.FC = () => {
   const [ghostThreshold, setGhostThreshold] = useState(21)
   const [followUpDays, setFollowUpDays] = useState(7)
   const [syncIntervalHours, setSyncIntervalHours] = useState(6)
+  const [supportedPortals, setSupportedPortals] = useState<SupportedPortalDefinition[]>([])
   const [toast, setToast] = useState<string | null>(null)
 
   useEffect(() => {
@@ -25,14 +21,16 @@ export const SettingsTab: React.FC = () => {
   }, [])
 
   const load = async () => {
-    const [settings, gmailResponse] = await Promise.all([
+    const [settings, gmailResponse, portals] = await Promise.all([
       storageManager.getSettings(),
       sendRuntimeMessage<GmailStatus>({ type: "GET_GMAIL_STATUS" }),
+      getSupportedPortals().catch(() => []),
     ])
 
     setGhostThreshold(settings.ghostThresholdDays)
     setFollowUpDays(settings.followUpDays)
     setSyncIntervalHours(settings.syncIntervalHours)
+    setSupportedPortals(portals)
     if (gmailResponse.success && gmailResponse.data) {
       setGmailStatus(gmailResponse.data)
     }
@@ -184,6 +182,41 @@ export const SettingsTab: React.FC = () => {
               <option value={6}>Every 6 hours</option>
               <option value={12}>Every 12 hours</option>
             </select>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-lg border bg-white p-4 shadow-sm">
+        <h3 className="mb-3 text-sm font-semibold text-gray-700">Supported Portals</h3>
+        <div className="space-y-3">
+          <p className="text-xs text-gray-500">
+            Knight currently supports these ATS platforms directly, plus a generic fallback for
+            standard career forms.
+          </p>
+          <div className="grid gap-3">
+            {supportedPortals.map((portal) => (
+              <div key={portal.id} className="rounded border border-slate-200 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">{portal.name}</p>
+                    <p className="text-xs text-slate-500">{portal.supportedDomains.join(", ")}</p>
+                  </div>
+                  {portal.vendorUrl ? (
+                    <a
+                      className="text-xs text-sky-700"
+                      href={portal.vendorUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Vendor Site
+                    </a>
+                  ) : (
+                    <span className="text-xs text-slate-400">Heuristic</span>
+                  )}
+                </div>
+                <p className="mt-2 text-xs text-slate-600">{portal.note}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

@@ -126,6 +126,10 @@ export class AnthropicProvider implements LLMProviderInterface {
     }
   }
 
+  async discoverModels(): Promise<string[]> {
+    return this.models
+  }
+
   getModels(): string[] {
     return this.models
   }

@@ -1,4 +1,5 @@
-import { ollamaClient } from "./ollama-client"
+import { storageManager } from "./storage-manager"
+import { buildLLMConfig, generateProviderStructured } from "./llm/provider-service"
 
 export type EmailClassification =
   | "confirmation"
@@ -216,7 +217,15 @@ export async function classifyEmail(emailContent: {
   body: string
 }): Promise<ClassificationResult> {
   try {
-    const response = await ollamaClient.generateStructured(
+    const [settings, secrets] = await Promise.all([
+      storageManager.getSettings(),
+      storageManager.getProviderSecrets(),
+    ])
+    const response = await generateProviderStructured(
+      buildLLMConfig(settings.llmConfig, secrets, {
+        temperature: 0.2,
+        maxTokens: 400,
+      }),
       CLASSIFICATION_PROMPT.replace("{subject}", emailContent.subject)
         .replace("{from}", emailContent.from)
         .replace("{body}", emailContent.body.substring(0, 4000))

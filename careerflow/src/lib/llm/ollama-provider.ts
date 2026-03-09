@@ -46,6 +46,10 @@ export class OllamaProvider implements LLMProviderInterface {
     return this.models
   }
 
+  async discoverModels(config: LLMConfig): Promise<string[]> {
+    return this.fetchInstalledModels(config)
+  }
+
   async generate(config: LLMConfig, prompt: string): Promise<string> {
     const endpoint = config.endpoint || "http://localhost:11434"
     const response = await fetch(`${endpoint}/api/generate`, {

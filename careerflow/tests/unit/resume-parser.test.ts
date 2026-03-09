@@ -1,8 +1,10 @@
 import { extractTextFromFile, parseResume, validateProfile } from '../../src/lib/resume-parser';
-import { ollamaClient } from '../../src/lib/ollama-client';
+import { generateStructuredWithActiveProvider } from '../../src/lib/runtime-client';
 import type { Profile } from '../../src/lib/types';
 
-jest.mock('../../src/lib/ollama-client');
+jest.mock('../../src/lib/runtime-client', () => ({
+  generateStructuredWithActiveProvider: jest.fn(),
+}));
 
 class CustomFileReader {
   result: ArrayBuffer | null = null;
@@ -404,7 +406,7 @@ describe('resume-parser', () => {
       }
       (global as any).FileReader = TestFileReader;
 
-      (ollamaClient.extractProfile as jest.Mock).mockResolvedValue({
+      (generateStructuredWithActiveProvider as jest.Mock).mockResolvedValue({
         success: true,
         profile: {
           identity: { name: 'Test', email: 'test@test.com' },
@@ -438,7 +440,7 @@ describe('resume-parser', () => {
       }
       (global as any).FileReader = TestFileReader;
 
-      (ollamaClient.extractProfile as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+      (generateStructuredWithActiveProvider as jest.Mock).mockRejectedValue(new Error('LLM failed'));
 
       const result = await parseResume(mockFile);
       expect(result.success).toBe(false);
