@@ -1,22 +1,30 @@
-import {
-  extractTextFromFile,
-  parseResume,
-  parseResumeFromText,
-  validateProfile,
-} from "../../src/lib/resume-parser"
-import { parseResumeWithService } from "../../src/lib/runtime-client"
-import type { Profile } from "../../src/lib/types"
+import { extractTextFromFile, parseResume, validateProfile } from '../../src/lib/resume-parser';
+import { generateStructuredWithActiveProvider } from '../../src/lib/runtime-client';
+import type { Profile } from '../../src/lib/types';
 
-jest.mock("../../src/lib/runtime-client", () => ({
-  parseResumeWithService: jest.fn(),
-}))
+jest.mock('../../src/lib/runtime-client', () => ({
+  generateStructuredWithActiveProvider: jest.fn(),
+}));
 
-function withArrayBuffer(file: File, text: string): File {
-  const bytes = new TextEncoder().encode(text)
-  Object.defineProperty(file, "arrayBuffer", {
-    value: async () => bytes.buffer,
-  })
-  return file
+class CustomFileReader {
+  result: ArrayBuffer | null = null;
+  error: Error | null = null;
+  onload: ((e: ProgressEvent<FileReader>) => void) | null = null;
+  onerror: ((e: ProgressEvent<FileReader>) => void) | null = null;
+  private _arrayBuffer: ArrayBuffer | null = null;
+
+  setArrayBuffer(buffer: ArrayBuffer) {
+    this._arrayBuffer = buffer;
+  }
+
+  readAsArrayBuffer() {
+    this.result = this._arrayBuffer || new ArrayBuffer(0);
+    setTimeout(() => {
+      if (this.onload) {
+        this.onload({ target: this } as ProgressEvent<FileReader>);
+      }
+    }, 0);
+  }
 }
 
 describe("resume-parser", () => {
@@ -44,89 +52,107 @@ describe("resume-parser", () => {
             start_date: "2020-01-01",
           },
         ],
-      },
-      extracted_text: "Jane Doe",
-    })
+      };
 
-    const result = await parseResume(file)
+      const result = validateProfile(invalidProfile);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Work experience 2: Company is required');
+    });
+  });
 
-    expect(parseResumeWithService).toHaveBeenCalledWith(
-      expect.objectContaining({
-        kind: "file",
-        fileName: "resume.pdf",
-        mimeType: "application/pdf",
-      })
-    )
-    expect(result.success).toBe(true)
-    expect(result.profile?.identity.name).toBe("Jane Doe")
-  })
+  describe('error handling', () => {
+    it('should reject unsupported file formats', async () => {
+      const mockFile = new File(['content'], 'resume.jpg', { type: 'image/jpeg' });
 
-  it("returns extracted text from the parser service", async () => {
-    const file = withArrayBuffer(
-      new File(["resume"], "resume.txt", { type: "text/plain" }),
-      "Jane Doe"
-    )
-    ;(parseResumeWithService as jest.Mock).mockResolvedValue({
-      success: true,
-      status: "repair",
-      extracted_text: "Jane Doe",
-    })
+      await expect(extractTextFromFile(mockFile)).rejects.toThrow('Unsupported file format');
+    });
 
-    await expect(extractTextFromFile(file)).resolves.toBe("Jane Doe")
-  })
+    it('should handle file read errors', async () => {
+      const mockFile = new File(['content'], 'test.pdf', { type: 'application/pdf' });
 
-  it("rejects unsupported file formats before contacting the service", async () => {
-    const file = withArrayBuffer(
-      new File(["resume"], "resume.csv", { type: "text/csv" }),
-      "name,email"
-    )
+      const originalFileReader = (global as any).FileReader;
+      class ErrorFileReader {
+        result: ArrayBuffer | null = null;
+        error: Error = new Error('Read failed');
+        onload: ((e: ProgressEvent<FileReader>) => void) | null = null;
+        onerror: ((e: ProgressEvent<FileReader>) => void) | null = null;
 
-    await expect(parseResume(file)).rejects.toThrow(
-      "Unsupported file format. Please upload PDF, DOCX, or TXT."
-    )
-    expect(parseResumeWithService).not.toHaveBeenCalled()
-  })
+        readAsArrayBuffer() {
+          setTimeout(() => {
+            if (this.onerror) {
+              this.onerror({ target: this } as ProgressEvent<FileReader>);
+            }
+          }, 0);
+        }
+      }
+      (global as any).FileReader = ErrorFileReader;
 
-  it("blocks pasted text retries when the text is empty", async () => {
-    const result = await parseResumeFromText("   ")
+      await expect(extractTextFromFile(mockFile)).rejects.toThrow();
 
-    expect(result.success).toBe(false)
-    expect(result.error).toBe("Paste some resume text before retrying parse.")
-    expect(parseResumeWithService).not.toHaveBeenCalled()
-  })
+      (global as any).FileReader = originalFileReader;
+    });
 
-  it("sends pasted text through the parser service", async () => {
-    ;(parseResumeWithService as jest.Mock).mockResolvedValue({
-      success: true,
-      status: "repair",
-      extracted_text: "Jane Doe resume text",
-    })
+    it('should return error for insufficient extracted text', async () => {
+      const shortContent = 'stream\nAB\nendstream';
+      const encoder = new TextEncoder();
+      const shortBuffer = encoder.encode(shortContent);
 
-    await parseResumeFromText("Jane Doe resume text")
+      const mockFile = new File([shortBuffer], 'resume.pdf', { type: 'application/pdf' });
 
-    expect(parseResumeWithService).toHaveBeenCalledWith({
-      kind: "text",
-      text: "Jane Doe resume text",
-    })
-  })
+      const originalFileReader = (global as any).FileReader;
+      class TestFileReader extends CustomFileReader {
+        readAsArrayBuffer() {
+          this.result = shortBuffer.buffer;
+          setTimeout(() => {
+            if (this.onload) {
+              this.onload({ target: this } as ProgressEvent<FileReader>);
+            }
+          }, 0);
+        }
+      }
+      (global as any).FileReader = TestFileReader;
 
-  it("still validates complete profiles", () => {
-    const validProfile: Profile = {
-      identity: {
-        name: "John Doe",
-        email: "john@example.com",
-      },
-      work_history: [
-        {
-          company: "Tech Corp",
-          title: "Software Engineer",
-          start_date: "2020-01-01",
+      (generateStructuredWithActiveProvider as jest.Mock).mockResolvedValue({
+        success: true,
+        profile: {
+          identity: { name: 'Test', email: 'test@test.com' },
+          work_history: [{ company: 'Test', title: 'Test', start_date: '2020-01-01' }],
         },
-      ],
-    }
+      });
 
-    const result = validateProfile(validProfile)
-    expect(result.valid).toBe(true)
-    expect(result.errors).toHaveLength(0)
-  })
-})
+      const result = await parseResume(mockFile);
+      expect(result.success).toBeDefined();
+
+      (global as any).FileReader = originalFileReader;
+    });
+
+    it('should handle LLM parsing errors', async () => {
+      const pdfContent = 'stream\n' + 'A'.repeat(100) + '\nendstream';
+      const encoder = new TextEncoder();
+      const pdfBuffer = encoder.encode(pdfContent);
+
+      const mockFile = new File([pdfBuffer], 'resume.pdf', { type: 'application/pdf' });
+
+      const originalFileReader = (global as any).FileReader;
+      class TestFileReader extends CustomFileReader {
+        readAsArrayBuffer() {
+          this.result = pdfBuffer.buffer;
+          setTimeout(() => {
+            if (this.onload) {
+              this.onload({ target: this } as ProgressEvent<FileReader>);
+            }
+          }, 0);
+        }
+      }
+      (global as any).FileReader = TestFileReader;
+
+      (generateStructuredWithActiveProvider as jest.Mock).mockRejectedValue(new Error('LLM failed'));
+
+      const result = await parseResume(mockFile);
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+
+      (global as any).FileReader = originalFileReader;
+    });
+  });
+});

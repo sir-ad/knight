@@ -335,32 +335,6 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
           } satisfies RuntimeResponse)
           break
 
-        case "GET_RESUME_PARSER_STATUS": {
-          const [settings, secrets] = await Promise.all([
-            storageManager.getSettings(),
-            storageManager.getProviderSecrets(),
-          ])
-
-          sendResponse({
-            success: true,
-            data: await getResumeParserServiceStatus(settings, secrets),
-          } satisfies RuntimeResponse)
-          break
-        }
-
-        case "PARSE_RESUME_WITH_SERVICE": {
-          const [settings, secrets] = await Promise.all([
-            storageManager.getSettings(),
-            storageManager.getProviderSecrets(),
-          ])
-
-          sendResponse({
-            success: true,
-            data: await parseResumeWithParserService(message.payload, settings, secrets),
-          } satisfies RuntimeResponse)
-          break
-        }
-
         case "TEST_LLM_PROVIDER": {
           const { config } = await resolveLLMRequest(message.payload)
           sendResponse({

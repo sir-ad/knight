@@ -340,10 +340,6 @@ export interface ExtensionSettings {
   autoMode: "smart-defaults" | "manual"
   providerCatalogs: Partial<Record<LLMProvider, ProviderModelCatalog>>
   lastRecommendation?: LLMRecommendation | null
-  parserEnabled: boolean
-  parserServiceUrl: string
-  resumeParseModel: string | null
-  resumeParseProviderOverride: LLMProvider | null
   gmailClientId: string
   gmailConnected: boolean
   lastSync: string | null
@@ -373,8 +369,6 @@ export type RuntimeMessage =
   | { type: "DISCONNECT_GMAIL" }
   | { type: "SYNC_GMAIL" }
   | { type: "GET_GMAIL_STATUS" }
-  | { type: "GET_RESUME_PARSER_STATUS" }
-  | { type: "PARSE_RESUME_WITH_SERVICE"; payload: ResumeParseInput }
   | { type: "TEST_LLM_PROVIDER"; payload?: { config?: Partial<LLMConfig>; apiKey?: string } }
   | { type: "DISCOVER_LLM_MODELS"; payload?: { config?: Partial<LLMConfig>; apiKey?: string } }
   | { type: "GENERATE_LLM_TEXT"; payload: { prompt: string; config?: Partial<LLMConfig>; apiKey?: string } }

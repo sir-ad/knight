@@ -1,11 +1,8 @@
 import { storageManager } from "./storage-manager"
 import type {
   LLMRecommendation,
-  ParsedResume,
   ProviderDiagnostics,
   ProviderModelCatalog,
-  ResumeParseInput,
-  ResumeParserServiceStatus,
   RuntimeMessage,
   RuntimeResponse,
   SupportedPortalDefinition,
@@ -138,31 +135,6 @@ export async function getSupportedPortals(): Promise<SupportedPortalDefinition[]
 
   if (!response.success || !response.data) {
     throw new Error(response.error || "Failed to load supported portals.")
-  }
-
-  return response.data
-}
-
-export async function getResumeParserStatus(): Promise<ResumeParserServiceStatus> {
-  const response = await sendRuntimeMessage<ResumeParserServiceStatus>({
-    type: "GET_RESUME_PARSER_STATUS",
-  })
-
-  if (!response.success || !response.data) {
-    throw new Error(response.error || "Failed to load resume parser status.")
-  }
-
-  return response.data
-}
-
-export async function parseResumeWithService(input: ResumeParseInput): Promise<ParsedResume> {
-  const response = await sendRuntimeMessage<ParsedResume>({
-    type: "PARSE_RESUME_WITH_SERVICE",
-    payload: input,
-  })
-
-  if (!response.success || !response.data) {
-    throw new Error(response.error || "Resume parser request failed.")
   }
 
   return response.data

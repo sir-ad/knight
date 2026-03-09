@@ -7,7 +7,6 @@ Knight is built with Plasmo and centered on one constraint: resume data should s
 ## Current Scope
 
 - Resume parsing for `PDF`, `DOCX`, and `TXT`
-- Resume parsing routed through a local LangExtract sidecar with `PyMuPDF` plus optional OCR
 - AI provider support for `Ollama`, `OpenAI`, `Anthropic`, `Google Gemini`, and `OpenRouter`
 - Smart defaults that auto-discover installed Ollama models and recommend the best reachable provider/model
 - Autofill support for:
@@ -42,18 +41,11 @@ Knight is built with Plasmo and centered on one constraint: resume data should s
 ```bash
 cd careerflow
 npm install
-
-cd ../resume-parser-sidecar
-./scripts/setup-venv.sh
-./scripts/run.sh
-
-cd ../careerflow
 OLLAMA_ORIGINS=chrome-extension://* ollama serve
 ollama pull llama3.2:3b
 ```
 
 Knight expects the Ollama endpoint as the host root only, for example `http://localhost:11434`. Do not save `/api`, `/api/tags`, `/api/generate`, or `/api/chat` in Settings.
-Knight expects the resume parser service as `http://127.0.0.1:43118` by default. Resume parsing fails closed if the sidecar is down.
 
 Optional environment variable:
 
@@ -108,4 +100,3 @@ npm run package
 - Local storage migration handles prior `knight_*` keys.
 - The extension keeps provider API keys in local Chrome storage and excludes them from export.
 - Smart defaults prefer a reachable local Ollama model, then fall back to the best configured cloud provider.
-- Resume parsing no longer runs in-browser. The extension now talks to the local sidecar for extraction and structured parsing.

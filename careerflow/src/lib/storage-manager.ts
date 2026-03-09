@@ -3,17 +3,10 @@ import type {
   ExtensionSettings,
   OllamaProviderSettings,
   Profile,
-  ProfileDraft,
   ProviderSecretStore,
   ProviderSettings,
 } from "./types"
 import type { LLMProvider } from "./llm/types"
-import {
-  createProfileDraft,
-  normalizeProfileCandidate,
-  normalizeProfileDraftCandidate,
-  validateProfile,
-} from "./profile-safety"
 
 export const STORAGE_KEYS = {
   PROFILE: "careerflow_profile",
@@ -43,10 +36,6 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   autoMode: "smart-defaults",
   providerCatalogs: {},
   lastRecommendation: null,
-  parserEnabled: true,
-  parserServiceUrl: DEFAULT_PARSER_SERVICE_URL,
-  resumeParseModel: null,
-  resumeParseProviderOverride: null,
   gmailClientId:
     process.env.PLASMO_PUBLIC_GOOGLE_CLIENT_ID ||
     "706101500110-metd89g3jf52pu073bo9005jf9ar3l75.apps.googleusercontent.com",
@@ -58,11 +47,6 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
 }
 
 const DEFAULT_OLLAMA_SETTINGS = DEFAULT_SETTINGS.llmConfig as OllamaProviderSettings
-
-function normalizeParserServiceUrl(value?: string | null): string {
-  const next = value?.trim().replace(/\/+$/, "")
-  return next || DEFAULT_PARSER_SERVICE_URL
-}
 
 async function getLocalStorage<T = Record<string, unknown>>(
   keys: string | string[] | null
@@ -131,8 +115,6 @@ export class ChromeStorageManager {
       STORAGE_KEYS.GMAIL_TOKEN,
       LEGACY_KEYS.GMAIL_TOKEN,
       STORAGE_KEYS.SETTINGS,
-      STORAGE_KEYS.PROFILE,
-      STORAGE_KEYS.PROFILE_DRAFT,
       STORAGE_KEYS.PROVIDER_SECRETS,
     ])
 
@@ -197,16 +179,6 @@ export class ChromeStorageManager {
         settings?.lastRecommendation === undefined
           ? DEFAULT_SETTINGS.lastRecommendation
           : settings.lastRecommendation,
-      parserEnabled:
-        typeof settings?.parserEnabled === "boolean"
-          ? settings.parserEnabled
-          : DEFAULT_SETTINGS.parserEnabled,
-      parserServiceUrl: normalizeParserServiceUrl(settings?.parserServiceUrl),
-      resumeParseModel:
-        typeof settings?.resumeParseModel === "string" && settings.resumeParseModel.trim()
-          ? settings.resumeParseModel.trim()
-          : null,
-      resumeParseProviderOverride: providerOverride,
       llmConfig: normalizeProviderSettings(settings?.llmConfig),
     }
   }

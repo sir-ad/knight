@@ -14,7 +14,6 @@ Website: [sir-ad.github.io/knight](https://sir-ad.github.io/knight/)
 ## What It Does
 
 - Local-first resume parsing for `PDF`, `DOCX`, and `TXT`
-- LangExtract-powered local resume parser sidecar with `PyMuPDF` and optional `Tesseract OCR`
 - AI provider support for `Ollama`, `OpenAI`, `Anthropic`, `Google Gemini`, and `OpenRouter`
 - Smart defaults that auto-discover installed Ollama models and recommend the best reachable provider/model
 - Autofill support for `Workday`, `Greenhouse`, `Lever`, `Naukri`, `iCIMS`, `SmartRecruiters`, `Taleo`, `SuccessFactors`, plus a generic fallback
@@ -51,26 +50,17 @@ Then load `careerflow/build/chrome-mv3-prod` in `chrome://extensions` with Devel
 ## Local Requirements
 
 - Node.js 20+
-- Python `3.11+`
-- The local resume parser sidecar running on `http://127.0.0.1:43118`
 - Ollama running locally for the privacy-first path
 - A pulled model such as `llama3.2:3b`
-- `tesseract` installed locally if you want OCR for scanned PDF resumes
 - Optional cloud provider API key for `OpenAI`, `Anthropic`, `Google Gemini`, or `OpenRouter`
 - Optional Gmail OAuth setup using `PLASMO_PUBLIC_GOOGLE_CLIENT_ID`
 
 ```bash
-cd resume-parser-sidecar
-./scripts/setup-venv.sh
-./scripts/run.sh
-
-cd ../careerflow
 OLLAMA_ORIGINS=chrome-extension://* ollama serve
 ollama pull llama3.2:3b
 ```
 
 Knight expects the Ollama endpoint as the host root only, for example `http://localhost:11434`. Do not add `/api` to the saved endpoint.
-Knight expects the resume parser service to stay on the default local URL unless you explicitly move it: `http://127.0.0.1:43118`.
 
 ## Supported Portals
 

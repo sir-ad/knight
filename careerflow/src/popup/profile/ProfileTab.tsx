@@ -1,8 +1,7 @@
-import { type ChangeEvent, useEffect, useRef, useState } from "react"
-import { createEmptyWorkExperience, validateProfile } from "../../lib/profile-safety"
+import { useEffect, useRef, useState } from "react"
 import { getProviderLabel } from "../../lib/llm/provider-service"
-import { parseResume, parseResumeFromText } from "../../lib/resume-parser"
-import { getResumeParserStatus } from "../../lib/runtime-client"
+import { parseResume, validateProfile } from "../../lib/resume-parser"
+import { testActiveProvider } from "../../lib/runtime-client"
 import { storageManager } from "../../lib/storage-manager"
 import type {
   ParsedResume,
@@ -58,9 +57,10 @@ export function ProfileTab() {
   const [isEditing, setIsEditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parseTime, setParseTime] = useState<number | null>(null)
-  const [parseDiagnostics, setParseDiagnostics] = useState<ResumeParseDiagnostic[]>([])
-  const [manualResumeText, setManualResumeText] = useState("")
-  const [showManualResumeEntry, setShowManualResumeEntry] = useState(false)
+  const [providerName, setProviderName] = useState("Ollama")
+  const [providerStatus, setProviderStatus] = useState<"unknown" | "connected" | "disconnected">(
+    "unknown"
+  )
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -90,47 +90,10 @@ export function ProfileTab() {
     ])
 
     setProfile(storedProfile)
-    setDraft(storedDraft)
-    setError(storedDraft ? buildDraftErrorMessage(storedDraft.validationErrors) : null)
-    setParseDiagnostics([])
-    await refreshParserStatus()
-  }
+    setProviderName(getProviderLabel(settings.llmConfig.provider))
 
-  const openFilePicker = () => {
-    fileInputRef.current?.click()
-  }
-
-  const applyParseResult = async (result: ParsedResume) => {
-    setParseTime(result.parse_time_ms || null)
-    setParseDiagnostics(result.diagnostics || [])
-
-    if (!result.success) {
-      setError(result.error || "Failed to parse resume.")
-      setShowManualResumeEntry(shouldShowManualFallback(result.diagnostics || []))
-      return
-    }
-
-    if (result.profile) {
-      await storageManager.saveProfile(result.profile)
-      setProfile(result.profile)
-      setDraft(null)
-      setIsEditing(false)
-      setError(null)
-      setManualResumeText("")
-      setShowManualResumeEntry(false)
-      return
-    }
-
-    if (result.draftProfile) {
-      const savedDraft = await storageManager.saveProfileDraft(result.draftProfile)
-      setDraft(savedDraft)
-      setError(buildDraftErrorMessage(savedDraft.validationErrors))
-      setManualResumeText("")
-      setShowManualResumeEntry(false)
-      return
-    }
-
-    setError("Resume parsing completed without a usable result.")
+    const diagnostics = await testActiveProvider().catch(() => null)
+    setProviderStatus(diagnostics?.ok ? "connected" : "disconnected")
   }
 
   const ensureParserReady = async () => {
@@ -158,11 +121,31 @@ export function ProfileTab() {
     setParseDiagnostics([])
 
     try {
-      await ensureParserReady()
+      const settings = await storageManager.getSettings()
+      setProviderName(getProviderLabel(settings.llmConfig.provider))
+
+      const diagnostics = await testActiveProvider()
+      if (!diagnostics.ok) {
+        throw new Error(diagnostics.message)
+      }
+
       const result = await parseResume(file)
-      await applyParseResult(result)
+      if (!result.success || !result.profile) {
+        throw new Error(result.error || "Failed to parse resume.")
+      }
+
+      const validation = validateProfile(result.profile)
+      if (!validation.valid) {
+        console.warn("Profile validation warnings:", validation.errors)
+      }
+
+      await storageManager.saveProfile(result.profile)
+      setProfile(result.profile)
+      setParseTime(result.parse_time_ms || null)
+      setProviderStatus("connected")
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unknown error")
+      setProviderStatus("disconnected")
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) {
@@ -330,17 +313,17 @@ export function ProfileTab() {
 
       <div className="rounded-lg border bg-white p-3 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">Resume Parser Service</span>
+          <span className="text-sm font-medium text-gray-700">{providerName} Status</span>
           <span
             className={`rounded-full px-2 py-1 text-xs ${
-              statusState === "connected"
+              providerStatus === "connected"
                 ? "bg-emerald-100 text-emerald-700"
-                : statusState === "disconnected"
+                : providerStatus === "disconnected"
                   ? "bg-rose-100 text-rose-700"
                   : "bg-slate-100 text-slate-600"
             }`}
           >
-            {statusState}
+            {providerStatus}
           </span>
         </div>
         {parserStatus && (

@@ -1,26 +1,8 @@
 import React, { useEffect, useState } from "react"
-import { getProviderLabel } from "../../lib/llm/provider-service"
-import {
-  getResumeParserStatus,
-  getSupportedPortals,
-  sendRuntimeMessage,
-} from "../../lib/runtime-client"
+import { getSupportedPortals, sendRuntimeMessage } from "../../lib/runtime-client"
 import { storageManager } from "../../lib/storage-manager"
-import type {
-  GmailStatus,
-  ResumeParserServiceStatus,
-  SupportedPortalDefinition,
-} from "../../lib/types"
-import type { LLMProvider } from "../../lib/llm/types"
+import type { GmailStatus, SupportedPortalDefinition } from "../../lib/types"
 import { LLMProviderConfig } from "./LLMProviderConfig"
-
-const PARSER_PROVIDERS: LLMProvider[] = [
-  "ollama",
-  "openai",
-  "anthropic",
-  "google",
-  "openrouter",
-]
 
 export const SettingsTab: React.FC = () => {
   const [gmailStatus, setGmailStatus] = useState<GmailStatus>({
