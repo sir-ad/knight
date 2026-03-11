@@ -1,4 +1,4 @@
-import type { ApplicationRecord, ExtensionSettings, Profile } from "./types"
+import type { ApplicationRecord, ExtensionSettings, LLMConfig, Profile } from "./types"
 
 export const STORAGE_KEYS = {
   PROFILE: "careerflow_profile",
@@ -17,7 +17,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     provider: "ollama",
     endpoint: "http://localhost:11434",
     model: "llama3.2:3b",
-  },
+  } as LLMConfig,
   gmailClientId:
     process.env.PLASMO_PUBLIC_GOOGLE_CLIENT_ID ||
     "706101500110-metd89g3jf52pu073bo9005jf9ar3l75.apps.googleusercontent.com",
@@ -85,7 +85,6 @@ export class ChromeStorageManager {
       llmConfig: {
         ...DEFAULT_SETTINGS.llmConfig,
         ...(settings?.llmConfig || {}),
-        provider: "ollama",
       },
     }
   }

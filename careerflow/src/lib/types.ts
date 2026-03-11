@@ -82,6 +82,7 @@ export type ATSAdapterName =
   | "workday"
   | "greenhouse"
   | "lever"
+  | "linkedin"
   | "naukri"
   | "icims"
   | "smartrecruiters"
@@ -112,7 +113,7 @@ export interface ATSAdapter {
   detect: () => boolean
   scanFields: () => DetectedField[]
   mapField: (field: DetectedField, profile: Profile) => MappedField
-  handleMultiStep?: () => Promise<void>
+  handleMultiStep?: () => Promise<boolean | void>
 }
 
 export type ApplicationStatus =
@@ -157,14 +158,24 @@ export interface ApplicationLogPayload {
   notes?: string
 }
 
+/** @deprecated Use LLMConfig from lib/llm instead. Kept for migration only. */
 export interface OllamaSettings {
   provider: "ollama"
   endpoint: string
   model: string
 }
 
+export interface LLMConfig {
+  provider: "ollama" | "openai" | "anthropic" | "google" | "openrouter"
+  model: string
+  apiKey?: string
+  endpoint?: string
+  temperature?: number
+  maxTokens?: number
+}
+
 export interface ExtensionSettings {
-  llmConfig: OllamaSettings
+  llmConfig: LLMConfig
   gmailClientId: string
   gmailConnected: boolean
   lastSync: string | null

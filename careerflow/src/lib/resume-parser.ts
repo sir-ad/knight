@@ -1,5 +1,6 @@
 import mammoth from "mammoth"
-import { ollamaClient } from "./ollama-client"
+import { getLLMClient } from "./llm"
+import { storageManager } from "./storage-manager"
 import type { ParsedResume, Profile } from "./types"
 
 async function readArrayBuffer(file: File): Promise<ArrayBuffer> {
@@ -110,9 +111,22 @@ export async function parseResume(file: File): Promise<ParsedResume> {
       }
     }
 
-    const result = await ollamaClient.extractProfile(resumeText)
+    // Bootstrap the unified client from stored settings before parsing
+    const settings = await storageManager.getSettings()
+    const client = getLLMClient(settings.llmConfig)
+
+    const prompt = `You are a resume parser. Extract information from the following resume and return a JSON object matching the Profile type. Include identity, work_history, education, skills, projects, certifications, and meta fields. Return ONLY valid JSON, no markdown or explanations. Use null for missing values. Dates: YYYY-MM-DD format.
+
+Resume:
+---
+${resumeText}
+---`
+
+    const profile = await client.generateStructured(prompt)
+
     return {
-      ...result,
+      success: true,
+      profile: profile as Profile,
       parse_time_ms: Date.now() - startedAt,
       extracted_text: resumeText,
     }

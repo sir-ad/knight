@@ -2,6 +2,7 @@ import { greenhouseAdapter } from "../content/ats-adapters/greenhouse"
 import { genericATSAdapter } from "../content/ats-adapters/generic"
 import { icimsAdapter } from "../content/ats-adapters/icims"
 import { leverAdapter } from "../content/ats-adapters/lever"
+import { linkedInAdapter } from "../content/ats-adapters/linkedin"
 import { naukriAdapter } from "../content/ats-adapters/naukri"
 import { smartRecruitersAdapter } from "../content/ats-adapters/smartrecruiters"
 import { successFactorsAdapter } from "../content/ats-adapters/successfactors"
@@ -13,6 +14,7 @@ const adapters: ATSAdapter[] = [
   workdayAdapter,
   greenhouseAdapter,
   leverAdapter,
+  linkedInAdapter,
   naukriAdapter,
   icimsAdapter,
   smartRecruitersAdapter,

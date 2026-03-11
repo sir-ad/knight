@@ -1,4 +1,4 @@
-import { ollamaClient } from "./ollama-client"
+import { getLLMClient } from "./llm"
 
 export type EmailClassification =
   | "confirmation"
@@ -216,7 +216,7 @@ export async function classifyEmail(emailContent: {
   body: string
 }): Promise<ClassificationResult> {
   try {
-    const response = await ollamaClient.generateStructured(
+    const response = await getLLMClient().generateStructured(
       CLASSIFICATION_PROMPT.replace("{subject}", emailContent.subject)
         .replace("{from}", emailContent.from)
         .replace("{body}", emailContent.body.substring(0, 4000))

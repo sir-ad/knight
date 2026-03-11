@@ -12,6 +12,14 @@ export interface DashboardStats {
 
 const GHOST_THRESHOLD_DAYS = 21
 
+/** Module-level init flag so migrateLegacyData only runs once per service-worker lifetime. */
+let _initialised = false
+async function ensureInit(): Promise<void> {
+  if (_initialised) return
+  await db.init()
+  _initialised = true
+}
+
 function daysSince(isoDate: string): number {
   const from = new Date(isoDate)
   return Math.floor((Date.now() - from.getTime()) / (1000 * 60 * 60 * 24))
@@ -19,7 +27,7 @@ function daysSince(isoDate: string): number {
 
 export class ApplicationTracker {
   async logApplication(data: ApplicationLogPayload): Promise<number> {
-    await db.init()
+    await ensureInit()
 
     return db.addApplication({
       company: data.company,
@@ -32,17 +40,17 @@ export class ApplicationTracker {
   }
 
   async updateStatus(id: number, status: ApplicationStatus): Promise<void> {
-    await db.init()
+    await ensureInit()
     await db.updateApplication(id, { status })
   }
 
   async linkEmailThread(appId: number, threadId: string): Promise<void> {
-    await db.init()
+    await ensureInit()
     await db.updateApplication(appId, { emailThreadId: threadId }, "email")
   }
 
   async detectGhostStatus(thresholdDays = GHOST_THRESHOLD_DAYS): Promise<ApplicationRecord[]> {
-    await db.init()
+    await ensureInit()
     const allApps = await db.getAllApplications()
     const ghostedApps: ApplicationRecord[] = []
 
@@ -72,7 +80,7 @@ export class ApplicationTracker {
   }
 
   async getDashboard(): Promise<DashboardStats> {
-    await db.init()
+    await ensureInit()
     const allApps = await db.getAllApplications()
 
     const stats: DashboardStats = {
@@ -110,27 +118,27 @@ export class ApplicationTracker {
   }
 
   async getApplication(id: number): Promise<ApplicationRecord | null> {
-    await db.init()
+    await ensureInit()
     return db.getApplication(id)
   }
 
   async getAllApplications(): Promise<ApplicationRecord[]> {
-    await db.init()
+    await ensureInit()
     return db.getAllApplications()
   }
 
   async getApplicationsByStatus(status: ApplicationStatus): Promise<ApplicationRecord[]> {
-    await db.init()
+    await ensureInit()
     return db.getApplicationsByStatus(status)
   }
 
   async deleteApplication(id: number): Promise<void> {
-    await db.init()
+    await ensureInit()
     await db.deleteApplication(id)
   }
 
   async updateApplication(id: number, updates: Partial<ApplicationRecord>): Promise<void> {
-    await db.init()
+    await ensureInit()
     await db.updateApplication(id, updates)
   }
 }

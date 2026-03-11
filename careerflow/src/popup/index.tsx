@@ -3,6 +3,7 @@ import "./popup.css"
 import { ProfileTab } from "./profile/ProfileTab"
 import { DashboardTab } from "./dashboard/DashboardTab"
 import { SettingsTab } from "./settings/SettingsTab"
+import { TabErrorBoundary } from "./TabErrorBoundary"
 
 function IndexPopup() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "settings">("profile")
@@ -34,11 +35,15 @@ function IndexPopup() {
 
       {/* Content */}
       <div className="p-4">
-{activeTab === "dashboard" && <DashboardTab />}
-
-      {activeTab === "profile" && <ProfileTab />}
-
-      {activeTab === "settings" && <SettingsTab />}
+        {activeTab === "dashboard" && (
+          <TabErrorBoundary tabName="Dashboard"><DashboardTab /></TabErrorBoundary>
+        )}
+        {activeTab === "profile" && (
+          <TabErrorBoundary tabName="Profile"><ProfileTab /></TabErrorBoundary>
+        )}
+        {activeTab === "settings" && (
+          <TabErrorBoundary tabName="Settings"><SettingsTab /></TabErrorBoundary>
+        )}
       </div>
     </div>
   )

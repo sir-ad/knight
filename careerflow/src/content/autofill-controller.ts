@@ -31,6 +31,8 @@ export class AutofillController {
   private profile: Profile | null = null
   private mappedFields: MappedField[] = []
   private isInitialized = false
+  private observer: MutationObserver | null = null
+  private visibilityHandler: (() => void) | null = null
   private eventHandlers: Map<FillEventType, FillEventHandler[]> = new Map()
 
   init(): void {
@@ -38,24 +40,43 @@ export class AutofillController {
       return
     }
 
-    document.addEventListener("visibilitychange", () => {
+    this.visibilityHandler = () => {
       if (!document.hidden && this.profile) {
         this.scanAndMap()
       }
-    })
+    }
+    document.addEventListener("visibilitychange", this.visibilityHandler)
 
-    const observer = new MutationObserver(() => {
-      if (this.profile) {
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+    this.observer = new MutationObserver(() => {
+      if (!this.profile) return
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
         this.scanAndMap()
-      }
+      }, 300)
     })
 
-    observer.observe(document.body, {
+    this.observer.observe(document.body, {
       childList: true,
       subtree: true,
     })
 
+    // Disconnect on full page unload or SPA navigation
+    const cleanup = () => this.destroy()
+    window.addEventListener("beforeunload", cleanup, { once: true })
+    window.addEventListener("popstate", cleanup, { once: true })
+
     this.isInitialized = true
+  }
+
+  destroy(): void {
+    this.observer?.disconnect()
+    this.observer = null
+    if (this.visibilityHandler) {
+      document.removeEventListener("visibilitychange", this.visibilityHandler)
+      this.visibilityHandler = null
+    }
+    this.isInitialized = false
   }
 
   setProfile(profile: Profile): void {
@@ -191,7 +212,7 @@ export class AutofillController {
           })),
         },
       },
-      "*"
+      window.location.origin
     )
   }
 

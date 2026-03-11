@@ -29,7 +29,7 @@ export async function addApplication(
   application: Omit<ApplicationRecord, "id" | "dateApplied" | "lastUpdated" | "statusHistory">
 ): Promise<number> {
   const applications = await storageManager.getApplications()
-  const id = applications.length > 0 ? Math.max(...applications.map((item) => item.id)) + 1 : 1
+  const id = applications.length > 0 ? applications.reduce((max, item) => (item.id > max ? item.id : max), 0) + 1 : 1
   const now = new Date().toISOString()
   const next: ApplicationRecord = {
     ...application,
