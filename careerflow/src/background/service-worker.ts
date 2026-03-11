@@ -277,6 +277,14 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === ALARM_NAMES.EMAIL_SYNC && result.syncRequested) {
       await syncEmails()
     }
+    if (alarm.name === ALARM_NAMES.GHOST_CHECK && (result.ghostedCount ?? 0) > 0) {
+      await chrome.notifications.create({
+        type: "basic",
+        iconUrl: "assets/icon128.png",
+        title: "Knight — Application Update",
+        message: `${result.ghostedCount} application${result.ghostedCount === 1 ? " was" : "s were"} marked as ghosted (no response in ${(await storageManager.getSettings()).ghostThresholdDays} days).`,
+      })
+    }
   })().catch((error) => {
     console.error(`Alarm handler failed for ${alarm.name}:`, error)
   })

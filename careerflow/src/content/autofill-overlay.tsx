@@ -1,11 +1,14 @@
 import React, { useMemo, useState } from "react"
 import { createRoot } from "react-dom/client"
-import type { ATSAdapterName, MappedField } from "../lib/types"
+import { getLLMClient } from "../lib/llm"
+import { storageManager } from "../lib/storage-manager"
+import type { ATSAdapterName, MappedField, Profile } from "../lib/types"
 import type { AutofillController } from "./autofill-controller"
 
 interface AutofillOverlayProps {
   atsType: ATSAdapterName
   controller: AutofillController
+  profile: Profile | null
   onLogApplication: () => Promise<void>
 }
 
@@ -27,10 +30,12 @@ function badgeClass(confidence: MappedField["confidence"]): string {
 const AutofillOverlay = ({
   atsType,
   controller,
+  profile,
   onLogApplication,
 }: AutofillOverlayProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
+  const [generating, setGenerating] = useState<string | null>(null)
   const [fields, setFields] = useState<MappedField[]>([])
   const [editedValues, setEditedValues] = useState<Record<string, string>>({})
   const [message, setMessage] = useState<string | null>(null)
@@ -79,6 +84,25 @@ const AutofillOverlay = ({
     )
   }
 
+  const generateLLMValue = async (field: MappedField) => {
+    const key = fieldKey(field)
+    setGenerating(key)
+    try {
+      const settings = await storageManager.getSettings()
+      const client = getLLMClient(settings.llmConfig)
+      const profileContext = profile
+        ? `Candidate: ${profile.identity.name}, ${profile.identity.email}. Current role: ${profile.work_history?.[0]?.title || ""} at ${profile.work_history?.[0]?.company || ""}.`
+        : ""
+      const prompt = `You are helping fill out a job application form. ${profileContext}\nGenerate a concise, professional answer for the following question/field. Return plain text only, no JSON, no markdown.\n\nField/Question: ${field.field.label || field.field.placeholder || key}\n\nAnswer:`
+      const answer = await client.generate(prompt)
+      setEditedValues((curr) => ({ ...curr, [key]: answer.trim() }))
+    } catch (err) {
+      console.error("LLM generation failed:", err)
+    } finally {
+      setGenerating(null)
+    }
+  }
+
   return (
     <>
       <button
@@ -106,33 +130,44 @@ const AutofillOverlay = ({
                 <div className="space-y-4">
                   {fields.map((field) => (
                     <div key={fieldKey(field)} className="space-y-2 border-b pb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-slate-900">
-                          {field.field.label || field.field.name || field.field.selector}
-                        </span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass(field.confidence)}`}
-                        >
-                          {field.confidence}
-                        </span>
-                        {field.needsLLM && (
-                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                            LLM
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-slate-900">
+                            {field.field.label || field.field.name || field.field.selector}
                           </span>
-                        )}
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass(field.confidence)}`}
+                          >
+                            {field.confidence}
+                          </span>
+                          {field.needsLLM && (
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                              LLM
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            value={editedValues[fieldKey(field)] || ""}
+                            onChange={(event) =>
+                              setEditedValues((current) => ({
+                                ...current,
+                                [fieldKey(field)]: event.target.value,
+                              }))
+                            }
+                            className="flex-1 rounded-lg border px-3 py-2 text-sm"
+                            placeholder={field.needsLLM ? "Click Generate ↗ or type your answer" : "No mapped value"}
+                          />
+                          {field.needsLLM && (
+                            <button
+                              className="rounded-lg border border-indigo-200 px-3 py-1 text-xs text-indigo-700 hover:bg-indigo-50 whitespace-nowrap disabled:opacity-50"
+                              onClick={() => generateLLMValue(field)}
+                              disabled={generating === fieldKey(field) || isBusy}
+                            >
+                              {generating === fieldKey(field) ? "Generating…" : "✦ Generate"}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <input
-                        value={editedValues[fieldKey(field)] || ""}
-                        onChange={(event) =>
-                          setEditedValues((current) => ({
-                            ...current,
-                            [fieldKey(field)]: event.target.value,
-                          }))
-                        }
-                        className="w-full rounded-lg border px-3 py-2 text-sm"
-                        placeholder={field.needsLLM ? "Handled later with Ollama" : "No mapped value"}
-                      />
-                    </div>
                   ))}
                 </div>
               )}

@@ -379,6 +379,28 @@ export const SettingsTab: React.FC = () => {
           >
             Export
           </button>
+          <label className="flex-1 cursor-pointer rounded border px-3 py-2 text-xs text-slate-700 text-center">
+            Import
+            <input
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                try {
+                  const text = await file.text()
+                  await storageManager.importData(text)
+                  await load()
+                  showToast("Data imported successfully.")
+                } catch {
+                  showToast("Import failed — invalid JSON file.")
+                } finally {
+                  e.target.value = ""
+                }
+              }}
+            />
+          </label>
           <button
             className="flex-1 rounded border px-3 py-2 text-xs text-slate-700"
             onClick={async () => {
@@ -387,7 +409,7 @@ export const SettingsTab: React.FC = () => {
               showToast("Local data cleared.")
             }}
           >
-            Clear Local Data
+            Clear
           </button>
         </div>
       </section>

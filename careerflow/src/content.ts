@@ -6,7 +6,45 @@ import { storageManager } from "./lib/storage-manager"
 import type { RuntimeMessage, RuntimeResponse } from "./lib/types"
 
 export const config = {
-  matches: ["<all_urls>"],
+  matches: [
+    // Workday
+    "*://*.myworkdayjobs.com/*",
+    "*://*.workday.com/*",
+    // Greenhouse
+    "*://*.greenhouse.io/*",
+    "*://boards.greenhouse.io/*",
+    // Lever
+    "*://*.lever.co/*",
+    "*://jobs.lever.co/*",
+    // iCIMS
+    "*://*.icims.com/*",
+    // SmartRecruiters
+    "*://*.smartrecruiters.com/*",
+    // SAP SuccessFactors
+    "*://*.successfactors.com/*",
+    "*://*.successfactors.eu/*",
+    // Taleo
+    "*://*.taleo.net/*",
+    // Naukri
+    "*://*.naukri.com/*",
+    // LinkedIn Easy Apply
+    "*://*.linkedin.com/jobs/*",
+    // Indeed
+    "*://*.indeed.com/apply/*",
+    // Wellfound / AngelList
+    "*://*.wellfound.com/jobs/*",
+    "*://*.angel.co/jobs/*",
+    // Ashby
+    "*://*.ashbyhq.com/*",
+    // Rippling
+    "*://*.rippling.com/jobs/*",
+    // BambooHR
+    "*://*.bamboohr.com/jobs/*",
+    // Recruitee
+    "*://*.recruitee.com/*",
+    // Jobvite
+    "*://*.jobvite.com/*",
+  ],
 }
 
 const notifyBackground = async (message: RuntimeMessage) => {
@@ -40,6 +78,7 @@ async function bootstrap() {
   injectAutofillOverlay({
     atsType: adapter.name,
     controller: autofillController,
+    profile: profile,
     onLogApplication: async () => {
       const payload = extractApplicationMetadata(adapter.name)
       await notifyBackground({
