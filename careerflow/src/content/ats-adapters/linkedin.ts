@@ -182,15 +182,13 @@ export class LinkedInEasyApplyAdapter extends BaseATSAdapter {
    * Click the "Next" button to advance to the next step of the Easy Apply wizard.
    * Returns true if a "Next"/"Review"/"Continue" button was found and clicked.
    */
-  async handleMultiStep(): Promise<boolean> {
+  async handleMultiStep(): Promise<void> {
     const nextBtn = document.querySelector<HTMLButtonElement>(
       "button[aria-label='Continue to next step'], button[aria-label='Review your application'], .jobs-easy-apply-footer button[data-easy-apply-next-button]"
     )
     if (nextBtn && !nextBtn.disabled) {
       nextBtn.click()
-      return true
     }
-    return false
   }
 }
 

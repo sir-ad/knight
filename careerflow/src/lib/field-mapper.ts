@@ -1,12 +1,16 @@
+import { ashbyAdapter } from "../content/ats-adapters/ashby"
 import { greenhouseAdapter } from "../content/ats-adapters/greenhouse"
 import { genericATSAdapter } from "../content/ats-adapters/generic"
 import { icimsAdapter } from "../content/ats-adapters/icims"
+import { indeedAdapter } from "../content/ats-adapters/indeed"
 import { leverAdapter } from "../content/ats-adapters/lever"
 import { linkedInAdapter } from "../content/ats-adapters/linkedin"
 import { naukriAdapter } from "../content/ats-adapters/naukri"
+import { ripplingAdapter } from "../content/ats-adapters/rippling"
 import { smartRecruitersAdapter } from "../content/ats-adapters/smartrecruiters"
 import { successFactorsAdapter } from "../content/ats-adapters/successfactors"
 import { taleoAdapter } from "../content/ats-adapters/taleo"
+import { wellfoundAdapter } from "../content/ats-adapters/wellfound"
 import { workdayAdapter } from "../content/ats-adapters/workday"
 import type { ATSAdapter, MappedField, DetectedField, Profile } from "./types"
 
@@ -20,6 +24,10 @@ const adapters: ATSAdapter[] = [
   smartRecruitersAdapter,
   taleoAdapter,
   successFactorsAdapter,
+  indeedAdapter,
+  wellfoundAdapter,
+  ashbyAdapter,
+  ripplingAdapter,
   genericATSAdapter,
 ]
 

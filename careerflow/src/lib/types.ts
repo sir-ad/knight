@@ -167,6 +167,11 @@ export type ATSAdapterName =
   | "smartrecruiters"
   | "taleo"
   | "successfactors"
+  | "linkedin"
+  | "indeed"
+  | "ashby"
+  | "wellfound"
+  | "rippling"
   | "generic"
 
 export interface DetectedField {
