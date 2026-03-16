@@ -4,6 +4,17 @@ All notable changes to Knight are documented here.
 
 ---
 
+## [0.3.1] — 2026-03-16
+
+### ✨ New Features
+- **Expanded Job Portal Support** — Added dedicated adapters for Indeed, Ashby, Wellfound (AngelList), and Rippling.
+- **Full LinkedIn Integration** — LinkedIn Easy Apply adapter is now fully integrated into the main portal list and UI.
+
+### 💥 Bug Fixes
+- **Type Safety & Portals Sync** — Updated `ATSAdapterName` and `SUPPORTED_PORTALS` to be exhaustive and consistent across the extension.
+
+---
+
 ## [0.3.0] — 2026-03-12
 
 ### 🚨 Breaking / Critical Fixes
