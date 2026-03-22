@@ -22,6 +22,8 @@ export interface ClassificationResult {
   data: ExtractedApplicationData
 }
 
+const DEFAULT_MAX_BODY_LENGTH = 4000
+
 const CLASSIFICATION_PROMPT = `You classify job-application emails.
 Return JSON only:
 {
@@ -36,7 +38,7 @@ Return JSON only:
 
 Email Subject: {subject}
 Email From: {from}
-Email Body:
+Email Body (truncated to {maxLength} chars):
 {body}`
 
 const KEYWORD_PATTERNS = {
@@ -211,11 +213,15 @@ function inferNextAction(classification: EmailClassification): string | null {
   }
 }
 
-export async function classifyEmail(emailContent: {
-  subject: string
-  from: string
-  body: string
-}): Promise<ClassificationResult> {
+export async function classifyEmail(
+  emailContent: {
+    subject: string
+    from: string
+    body: string
+  },
+  options: { maxBodyLength?: number } = {}
+): Promise<ClassificationResult> {
+  const maxBodyLength = options.maxBodyLength ?? DEFAULT_MAX_BODY_LENGTH
   try {
     const [settings, secrets] = await Promise.all([
       storageManager.getSettings(),
@@ -226,9 +232,11 @@ export async function classifyEmail(emailContent: {
         temperature: 0.2,
         maxTokens: 400,
       }),
-      CLASSIFICATION_PROMPT.replace("{subject}", emailContent.subject)
+      CLASSIFICATION_PROMPT
+        .replace("{subject}", emailContent.subject)
         .replace("{from}", emailContent.from)
-        .replace("{body}", emailContent.body.substring(0, 4000))
+        .replace("{body}", emailContent.body.substring(0, maxBodyLength))
+        .replace("{maxLength}", String(maxBodyLength))
     )
 
     if (response?.classification) {
@@ -264,11 +272,14 @@ export async function classifyEmail(emailContent: {
   }
 }
 
-export async function extractApplicationData(emailContent: {
-  subject: string
-  from: string
-  body: string
-}): Promise<ExtractedApplicationData> {
-  const result = await classifyEmail(emailContent)
+export async function extractApplicationData(
+  emailContent: {
+    subject: string
+    from: string
+    body: string
+  },
+  options?: { maxBodyLength?: number }
+): Promise<ExtractedApplicationData> {
+  const result = await classifyEmail(emailContent, options)
   return result.data
 }

@@ -41,14 +41,15 @@ function validateSupportedFile(file: File): void {
   const mimeType = inferMimeType(file)
   const name = file.name.toLowerCase()
 
-  if (
-    mimeType === "application/pdf" ||
-    mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    mimeType === "text/plain" ||
-    name.endsWith(".pdf") ||
-    name.endsWith(".docx") ||
-    name.endsWith(".txt")
-  ) {
+  const supportedMimeTypes = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword", // .doc
+    "text/plain",
+  ]
+  const supportedExtensions = [".pdf", ".docx", ".doc", ".txt"]
+
+  if (supportedMimeTypes.includes(mimeType) || supportedExtensions.some(ext => name.endsWith(ext))) {
     return
   }
 
