@@ -95,6 +95,20 @@ All LLM calls from the extension route through the **service worker** — conten
 
 ## Quick Start
 
+### One-line install
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/sir-ad/knight/main/install.sh)
+```
+
+Clones the repo, builds the extension, and sets up the Python sidecar in one shot. Then follow the printed instructions to load the unpacked extension in Chrome.
+
+Set `KNIGHT_DIR` to change the install location (default: `~/knight`).
+
+---
+
+### Manual setup
+
 ### 1. Start the resume parser sidecar
 
 ```bash
