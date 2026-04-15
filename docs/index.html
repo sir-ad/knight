@@ -6,15 +6,15 @@
     <title>Knight | Local-First Job Application Autofill</title>
     <meta
       name="description"
-      content="Knight is a privacy-first Chrome extension that supports Ollama, OpenAI, Anthropic, Gemini, and OpenRouter for resume parsing, ATS autofill, Gmail tracking, and follow-up drafting."
+      content="Knight is a privacy-first Chrome extension that parses your resume locally, autofills ATS forms with a review step, tracks applications, and syncs Gmail read-only — your data never leaves your machine."
     />
-    <meta property="og:title" content="Knight" />
+    <meta property="og:title" content="Knight — Local-First Job Application Autofill" />
     <meta
       property="og:description"
-      content="Local-first Chrome extension for resume parsing, ATS autofill, Gmail tracking, and follow-up drafting."
+      content="Parse once. Review before fill. Apply everywhere. Your resume stays on your machine."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="./assets/icon.svg" />
+    <meta property="og:image" content="./assets/banner.svg" />
     <link rel="icon" href="./assets/icon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,7 +34,7 @@
           </div>
           <div class="nav-links">
             <a href="#features">Features</a>
-            <a href="#support">Supported sites</a>
+            <a href="#support">Portals</a>
             <a href="#install">Install</a>
             <a href="https://github.com/sir-ad/knight">GitHub</a>
           </div>
@@ -42,21 +42,21 @@
 
         <div class="hero-content">
           <div class="hero-copy">
-            <p class="eyebrow">Chrome extension • Multi-provider • GitHub Pages</p>
-            <h1>Apply faster without handing your resume to a hosted AI.</h1>
+            <p class="eyebrow">Chrome extension · Privacy-first · Local LLM ready</p>
+            <h1>Stop filling the same form twice.</h1>
             <p class="hero-text">
-              Knight parses your resume locally, maps it onto common ATS forms, logs applications,
-              reads Gmail updates with a read-only scope, and drafts follow-ups with Ollama,
-              OpenAI, Anthropic, Google Gemini, or OpenRouter.
+              Every application is the same twenty fields, pasted by hand into Workday, Greenhouse, Lever, and a
+              dozen other portals that share nothing between them. Knight parses your resume on your own machine,
+              maps it to each form's fields, and writes nothing until you confirm a diff of every change.
             </p>
             <div class="hero-actions">
-              <a class="button primary" href="https://github.com/sir-ad/knight">View Repository</a>
-              <a class="button secondary" href="#install">Installation Guide</a>
+              <a class="button primary" href="#install">Install Knight</a>
+              <a class="button secondary" href="https://github.com/sir-ad/knight">View on GitHub</a>
             </div>
             <ul class="hero-points">
-              <li>Local-first with optional cloud providers</li>
-              <li>Works across major ATS portals and generic forms</li>
-              <li>Auto-discovers installed Ollama models and tracks Gmail status drift</li>
+              <li>Resume parsed locally — no hosted pipeline</li>
+              <li>Review overlay before a single character is written</li>
+              <li>Ollama, OpenAI, Anthropic, Gemini, or OpenRouter</li>
             </ul>
           </div>
 
@@ -67,26 +67,30 @@
               </div>
               <div class="window-body">
                 <div class="metric">
+                  <strong>14</strong>
+                  <span>Named ATS adapters + generic fallback</span>
+                </div>
+                <div class="metric">
                   <strong>5</strong>
                   <span>LLM providers supported</span>
                 </div>
                 <div class="metric">
-                  <strong>9</strong>
-                  <span>Portal paths including generic fallback</span>
-                </div>
-                <div class="metric">
-                  <strong>129</strong>
-                  <span>Passing regression tests</span>
+                  <strong>0</strong>
+                  <span>Bytes sent to any server without your consent</span>
                 </div>
                 <div class="status-list">
                   <div><b>Resume</b><span>PDF / DOCX / TXT</span></div>
-                  <div><b>Providers</b><span>Ollama / OpenAI / Anthropic / Gemini / OpenRouter</span></div>
+                  <div><b>Providers</b><span>Ollama · OpenAI · Anthropic · Gemini · OpenRouter</span></div>
                   <div><b>Tracking</b><span>Gmail read-only sync</span></div>
-                  <div><b>Follow-up</b><span>Active provider drafted replies</span></div>
+                  <div><b>Follow-up</b><span>Drafted from your application context</span></div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="hero-banner">
+          <img src="./assets/banner.svg" alt="Knight abstract visual" />
         </div>
       </header>
 
@@ -101,30 +105,29 @@
             <article class="feature-card">
               <h3>1. Parse once</h3>
               <p>
-                Import your resume as PDF, DOCX, or TXT. Knight now uses a local parser service
-                powered by LangExtract, PyMuPDF, and optional Tesseract OCR to build a reusable
-                profile without doing brittle PDF parsing inside the browser.
+                Import your resume as PDF, DOCX, or TXT. The local sidecar uses PyMuPDF, optional Tesseract OCR,
+                and LangExtract to build a reusable structured profile — entirely on your machine.
               </p>
             </article>
             <article class="feature-card">
               <h3>2. Review before fill</h3>
               <p>
-                On supported career pages, Knight injects a review overlay so you can inspect or
-                edit mapped values before autofill.
+                On every supported career page, Knight injects a review overlay so you can inspect or edit every
+                mapped value before a single character is written into any field.
               </p>
             </article>
             <article class="feature-card">
               <h3>3. Track status drift</h3>
               <p>
-                Gmail sync classifies confirmation, interview, rejection, and offer emails, then
-                updates the application timeline locally.
+                Gmail sync runs read-only OAuth and classifies confirmation, interview, rejection, and offer
+                emails — updating your local application timeline automatically.
               </p>
             </article>
             <article class="feature-card">
               <h3>4. Draft the follow-up</h3>
               <p>
-                When a role stalls, Knight uses your profile plus application history to prepare a
-                concise follow-up draft with the currently selected provider.
+                When a role stalls, Knight uses your profile plus application history to prepare a concise
+                follow-up draft with whichever provider you have configured.
               </p>
             </article>
           </div>
@@ -133,7 +136,7 @@
         <section id="support" class="section support-section">
           <div class="section-heading">
             <p class="eyebrow">Coverage</p>
-            <h2>Common job platforms supported first</h2>
+            <h2>14 named adapters + a DOM fallback</h2>
           </div>
 
           <div class="pill-grid">
@@ -143,63 +146,98 @@
             <span>Naukri</span>
             <span>iCIMS</span>
             <span>SmartRecruiters</span>
-            <span>Taleo</span>
-            <span>SuccessFactors</span>
-            <span>Generic fallback</span>
+            <span>Oracle Taleo</span>
+            <span>SAP SuccessFactors</span>
+            <span>LinkedIn Easy Apply</span>
+            <span>Indeed</span>
+            <span>Wellfound</span>
+            <span>Ashby</span>
+            <span>Rippling</span>
+            <span class="pill-fallback">Generic fallback</span>
           </div>
 
           <p class="support-note">
-            Knight also includes a generic form-mapping fallback for employer-hosted portals that
-            expose standard inputs, labels, placeholders, or aria metadata. In the extension
-            settings, each supported platform is listed with its canonical vendor link and domain
-            coverage.
+            The generic fallback covers employer-hosted portals that expose standard inputs, labels,
+            placeholders, or <code>aria</code> metadata. Every supported ATS is listed in the extension
+            settings with its canonical vendor link and domain coverage.
           </p>
         </section>
 
         <section id="install" class="section install-section">
           <div class="section-heading">
             <p class="eyebrow">Install</p>
-            <h2>Local dev, packaged release, and GitHub Pages all included</h2>
+            <h2>One command to get started</h2>
+          </div>
+
+          <div class="oneliner-block">
+            <div class="oneliner-label">Run this in your terminal</div>
+            <div class="oneliner-row">
+              <pre class="oneliner-pre"><code id="install-cmd">bash &lt;(curl -fsSL https://raw.githubusercontent.com/sir-ad/knight/main/install.sh)</code></pre>
+              <button class="copy-btn" onclick="copyInstall()" title="Copy to clipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <p class="oneliner-note">
+              Clones the repo, sets up the Python sidecar, and builds the extension in one shot.
+              Set <code>KNIGHT_DIR=/your/path</code> to change the install location (default: <code>~/knight</code>).
+            </p>
           </div>
 
           <div class="install-layout">
             <div class="install-card">
-              <h3>Local setup</h3>
-              <pre><code>git clone git@github.com:sir-ad/knight.git
-cd knight/resume-parser-sidecar
-./scripts/setup-venv.sh
-./scripts/run.sh
-
-cd ../careerflow
-npm install
-OLLAMA_ORIGINS=chrome-extension://* ollama serve
-ollama pull llama3.2:3b
-npm test -- --runInBand
-npm run build
-</code></pre>
+              <h3>What gets built</h3>
+              <ul>
+                <li>Python venv with PyMuPDF, LangExtract, Tesseract bindings</li>
+                <li>Chrome extension at <code>careerflow/build/chrome-mv3-prod</code></li>
+                <li>Sidecar start command printed on completion</li>
+              </ul>
             </div>
             <div class="install-card">
-              <h3>Chrome load</h3>
+              <h3>Load in Chrome</h3>
               <ol>
                 <li>Open <code>chrome://extensions</code></li>
                 <li>Enable Developer Mode</li>
                 <li>Click Load unpacked</li>
-                <li>Select <code>careerflow/build/chrome-mv3-prod</code></li>
+                <li>Select <code>~/knight/careerflow/build/chrome-mv3-prod</code></li>
               </ol>
             </div>
             <div class="install-card">
-              <h3>Local requirements</h3>
+              <h3>Requirements</h3>
               <ul>
                 <li>Node.js 20+</li>
-                <li>Python 3.11+ for the local parser sidecar</li>
-                <li>Resume parser sidecar on <code>127.0.0.1:43118</code></li>
-                <li>Ollama running locally for the default privacy-first path</li>
-                <li><code>llama3.2:3b</code> or another installed Ollama model</li>
-                <li><code>tesseract</code> if you want OCR for scanned PDFs</li>
-                <li>Optional API keys for OpenAI, Anthropic, Google Gemini, or OpenRouter</li>
-                <li>Optional Google OAuth client for Gmail sync</li>
+                <li>Python 3.11+</li>
+                <li>Chrome 115+ (MV3)</li>
+                <li><code>tesseract</code> — optional, for scanned PDFs</li>
+                <li>Ollama — optional, for the local-only path</li>
               </ul>
             </div>
+          </div>
+
+          <div class="manual-details">
+            <details>
+              <summary>Manual setup</summary>
+              <div class="manual-grid">
+                <div>
+                  <h4>Sidecar</h4>
+                  <pre><code>cd ~/knight/resume-parser-sidecar
+./scripts/setup-venv.sh
+./scripts/run.sh</code></pre>
+                </div>
+                <div>
+                  <h4>Extension</h4>
+                  <pre><code>cd ~/knight/careerflow
+npm install
+npm run build</code></pre>
+                </div>
+                <div>
+                  <h4>Ollama (optional)</h4>
+                  <pre><code>OLLAMA_ORIGINS=chrome-extension://* \
+  ollama serve
+ollama pull llama3.2:3b</code></pre>
+                </div>
+              </div>
+            </details>
           </div>
         </section>
 
@@ -212,28 +250,39 @@ npm run build
           <div class="repo-grid">
             <article>
               <h3>CI</h3>
-              <p>Typecheck, test, build, and package the extension, then run the Python sidecar test suite with Tesseract installed.</p>
+              <p>Typecheck, test, build, and package the extension. Python sidecar test suite runs in parallel with Tesseract installed.</p>
             </article>
             <article>
               <h3>Pages</h3>
-              <p>This site deploys from the repository via GitHub Actions with no extra hosting layer.</p>
+              <p>This site deploys from <code>docs/</code> via GitHub Actions. No extra hosting layer.</p>
             </article>
             <article>
               <h3>Releases</h3>
-              <p>Tagged releases attach the packaged Chrome extension zip as a downloadable artifact.</p>
+              <p>Tagged releases attach the packaged Chrome extension zip as a downloadable artifact ready for side-loading.</p>
             </article>
           </div>
         </section>
       </main>
 
       <footer class="footer">
-        <p>Knight is built for candidates who want less repetition and more control.</p>
+        <p>Knight — built for candidates who want less repetition and more control.</p>
         <div class="footer-links">
           <a href="https://github.com/sir-ad/knight">GitHub</a>
           <a href="https://github.com/sir-ad/knight/issues">Issues</a>
-          <a href="https://github.com/sir-ad/knight/blob/main/careerflow/README.md">Extension docs</a>
+          <a href="https://github.com/sir-ad/knight/releases">Releases</a>
         </div>
       </footer>
     </div>
+
+    <script>
+      function copyInstall() {
+        const text = 'bash <(curl -fsSL https://raw.githubusercontent.com/sir-ad/knight/main/install.sh)';
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.querySelector('.copy-btn span');
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+        });
+      }
+    </script>
   </body>
 </html>

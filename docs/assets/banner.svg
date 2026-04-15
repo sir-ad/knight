@@ -1,0 +1,246 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500">
+  <defs>
+
+    <!-- Backgrounds -->
+    <radialGradient id="bg" cx="50%" cy="48%" r="72%">
+      <stop offset="0%"   stop-color="#111b32"/>
+      <stop offset="100%" stop-color="#060c18"/>
+    </radialGradient>
+
+    <!-- Ambient bloom gradients -->
+    <radialGradient id="bloomBlue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#1d4ed8" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bloomCyan" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#0891b2" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#0891b2" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bloomViolet" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#6d28d9" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#6d28d9" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="0%"   stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
+    </radialGradient>
+
+    <!-- Dot-grid tile -->
+    <pattern id="dots" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse">
+      <circle cx="22" cy="22" r="1.1" fill="#253c60" opacity="0.55"/>
+    </pattern>
+
+    <!-- Glow filter -->
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Soft bloom filter -->
+    <filter id="softBloom" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="28" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+  </defs>
+
+  <!-- ─── BACKGROUND ─────────────────────────────────── -->
+  <rect width="1200" height="500" fill="url(#bg)"/>
+  <rect width="1200" height="500" fill="url(#dots)"/>
+
+  <!-- Ambient blooms -->
+  <ellipse cx="600"  cy="250" rx="420" ry="320" fill="url(#bloomBlue)"   filter="url(#softBloom)"/>
+  <ellipse cx="195"  cy="185" rx="230" ry="190" fill="url(#bloomCyan)"   filter="url(#softBloom)"/>
+  <ellipse cx="1010" cy="315" rx="250" ry="200" fill="url(#bloomViolet)" filter="url(#softBloom)"/>
+
+  <!-- ─── FAR-BACKGROUND FACETS ────────────────────────── -->
+  <polygon points="0,0 310,0 220,170 0,130"          fill="#0d1c36" opacity="0.7"/>
+  <polygon points="0,130 220,170 160,310 0,350"       fill="#091422" opacity="0.65"/>
+  <polygon points="0,350 160,310 110,500 0,500"       fill="#0c1828" opacity="0.6"/>
+
+  <polygon points="1200,0 890,0 980,170 1200,130"     fill="#0d1c36" opacity="0.7"/>
+  <polygon points="1200,130 980,170 1040,310 1200,350" fill="#091422" opacity="0.65"/>
+  <polygon points="1200,350 1040,310 1090,500 1200,500" fill="#0c1828" opacity="0.6"/>
+
+  <polygon points="310,0 620,0 580,90 255,75"         fill="#0e1f3e" opacity="0.5"/>
+  <polygon points="580,0 900,0 945,75 620,90"         fill="#0e1f3e" opacity="0.5"/>
+  <polygon points="90,500 420,500 460,415 130,400"    fill="#0a1628" opacity="0.55"/>
+  <polygon points="780,500 1110,500 1070,400 740,415" fill="#0a1628" opacity="0.55"/>
+
+  <!-- ─── MID-GROUND TERRAIN FACETS ────────────────────── -->
+  <polygon points="0,210 195,155 270,310 80,360"      fill="#112040" opacity="0.6"/>
+  <polygon points="80,360 270,310 230,450 30,480"     fill="#0d1a32" opacity="0.55"/>
+
+  <polygon points="1200,210 1005,155 930,310 1120,360" fill="#112040" opacity="0.6"/>
+  <polygon points="1120,360 930,310 970,450 1170,480"  fill="#0d1a32" opacity="0.55"/>
+
+  <!-- ─── CENTRAL CRYSTAL FORM ──────────────────────────
+       Key vertices:
+         P   = (600, 58)    peak
+         SL  = (452, 172)   shoulder-left
+         SR  = (748, 172)   shoulder-right
+         WL  = (392, 278)   wing-left
+         WR  = (808, 278)   wing-right
+         ML  = (448, 368)   mid-lower-left
+         MR  = (752, 368)   mid-lower-right
+         BL  = (512, 452)   base-left
+         BR  = (688, 452)   base-right
+         CU  = (600, 158)   core-upper
+         CL  = (522, 248)   core-left
+         CR  = (678, 248)   core-right
+         CC  = (600, 304)   core-center
+         CLw = (600, 386)   core-lower
+  ──────────────────────────────────────────────────── -->
+
+  <!-- Shadow / back faces -->
+  <polygon points="600,58  452,172  522,248  600,158" fill="#0e1e3c" opacity="0.95"/>
+  <polygon points="452,172 392,278  522,248"          fill="#091526" opacity="0.95"/>
+  <polygon points="392,278 448,368  522,248"          fill="#0b1a2e" opacity="0.90"/>
+  <polygon points="448,368 512,452  600,386  522,248" fill="#0a1828" opacity="0.92"/>
+
+  <!-- Light / front faces -->
+  <polygon points="600,58  600,158  748,172"          fill="#1b3a6e" opacity="0.95"/>
+  <polygon points="748,172 678,248  808,278"          fill="#152e5c" opacity="0.90"/>
+  <polygon points="808,278 678,248  752,368"          fill="#172f60" opacity="0.90"/>
+  <polygon points="678,248 752,368  688,452  600,386" fill="#13274e" opacity="0.92"/>
+
+  <!-- Centre face – the brightest -->
+  <polygon points="600,158 522,248  600,304  678,248" fill="#234fa0" opacity="0.95"/>
+  <!-- Highlight sub-facet upper right of centre -->
+  <polygon points="600,158 678,248  640,200"          fill="#2e62c0" opacity="0.70"/>
+  <!-- Lower centre face -->
+  <polygon points="522,248 600,304  678,248  600,386" fill="#1c3f80" opacity="0.90"/>
+
+  <!-- Base -->
+  <polygon points="512,452 688,452  600,386"          fill="#0f2044" opacity="0.90"/>
+  <polygon points="448,368 512,452  600,386"          fill="#0c1c38" opacity="0.90"/>
+  <polygon points="688,452 752,368  600,386"          fill="#12264a" opacity="0.90"/>
+
+  <!-- ─── CRYSTAL EDGE HIGHLIGHTS ───────────────────────── -->
+  <!-- Vertical spine -->
+  <line x1="600" y1="58"  x2="600" y2="158" stroke="#60a5fa" stroke-width="1.4" opacity="0.85"/>
+  <line x1="600" y1="158" x2="600" y2="304" stroke="#3b82f6" stroke-width="1.1" opacity="0.55"/>
+  <line x1="600" y1="304" x2="600" y2="386" stroke="#2563eb" stroke-width="0.9" opacity="0.40"/>
+  <line x1="600" y1="386" x2="600" y2="452" stroke="#1d4ed8" stroke-width="0.8" opacity="0.28"/>
+
+  <!-- Left shoulder edge -->
+  <line x1="600" y1="58"  x2="452" y2="172" stroke="#1e3f7a" stroke-width="1.0" opacity="0.60"/>
+  <!-- Right shoulder edge (lit) -->
+  <line x1="600" y1="58"  x2="748" y2="172" stroke="#3b6fce" stroke-width="1.2" opacity="0.75"/>
+
+  <!-- Core-upper to shoulders -->
+  <line x1="600" y1="158" x2="452" y2="172" stroke="#1a3464" stroke-width="0.9" opacity="0.45"/>
+  <line x1="600" y1="158" x2="748" y2="172" stroke="#2a5298" stroke-width="1.0" opacity="0.60"/>
+
+  <!-- Core horizontals -->
+  <line x1="522" y1="248" x2="678" y2="248" stroke="#4080d8" stroke-width="1.1" opacity="0.65"/>
+  <line x1="392" y1="278" x2="808" y2="278" stroke="#1e3a70" stroke-width="0.7" opacity="0.30"/>
+
+  <!-- Wing edges -->
+  <line x1="452" y1="172" x2="392" y2="278" stroke="#0e2244" stroke-width="0.9" opacity="0.50"/>
+  <line x1="748" y1="172" x2="808" y2="278" stroke="#1e3c74" stroke-width="0.9" opacity="0.55"/>
+
+  <!-- Lower edges -->
+  <line x1="392" y1="278" x2="448" y2="368" stroke="#0c1e3c" stroke-width="0.8" opacity="0.40"/>
+  <line x1="808" y1="278" x2="752" y2="368" stroke="#162e5c" stroke-width="0.8" opacity="0.45"/>
+  <line x1="448" y1="368" x2="512" y2="452" stroke="#0a1a30" stroke-width="0.7" opacity="0.35"/>
+  <line x1="752" y1="368" x2="688" y2="452" stroke="#122444" stroke-width="0.7" opacity="0.38"/>
+  <line x1="512" y1="452" x2="688" y2="452" stroke="#1a3060" stroke-width="0.7" opacity="0.30"/>
+
+  <!-- Core-left and core-right to wings/base -->
+  <line x1="522" y1="248" x2="392" y2="278" stroke="#0e2040" stroke-width="0.8" opacity="0.40"/>
+  <line x1="678" y1="248" x2="808" y2="278" stroke="#1a3468" stroke-width="0.8" opacity="0.45"/>
+  <line x1="522" y1="248" x2="448" y2="368" stroke="#0c1c36" stroke-width="0.8" opacity="0.38"/>
+  <line x1="678" y1="248" x2="752" y2="368" stroke="#142c58" stroke-width="0.8" opacity="0.42"/>
+
+  <!-- ─── RADIATING LINES FROM CRYSTAL ─────────────────── -->
+  <line x1="452" y1="172" x2="130"  y2="55"  stroke="#3b82f6" stroke-width="0.7" opacity="0.22"/>
+  <line x1="748" y1="172" x2="1070" y2="55"  stroke="#3b82f6" stroke-width="0.7" opacity="0.22"/>
+  <line x1="392" y1="278" x2="55"   y2="250" stroke="#06b6d4" stroke-width="0.7" opacity="0.18"/>
+  <line x1="808" y1="278" x2="1145" y2="250" stroke="#06b6d4" stroke-width="0.7" opacity="0.18"/>
+  <line x1="448" y1="368" x2="190"  y2="460" stroke="#7c3aed" stroke-width="0.6" opacity="0.16"/>
+  <line x1="752" y1="368" x2="1010" y2="460" stroke="#7c3aed" stroke-width="0.6" opacity="0.16"/>
+  <line x1="600" y1="58"  x2="580"  y2="0"   stroke="#60a5fa" stroke-width="0.6" opacity="0.20"/>
+  <line x1="600" y1="452" x2="620"  y2="500" stroke="#3b82f6" stroke-width="0.6" opacity="0.15"/>
+
+  <!-- Secondary web lines (left side) -->
+  <line x1="130"  y1="55"  x2="55"  y2="250" stroke="#2563eb" stroke-width="0.5" opacity="0.14"/>
+  <line x1="55"   y1="250" x2="190" y2="460" stroke="#2563eb" stroke-width="0.5" opacity="0.14"/>
+  <line x1="190"  y1="460" x2="130" y2="55"  stroke="#1d4ed8" stroke-width="0.5" opacity="0.10"/>
+
+  <!-- Secondary web lines (right side) -->
+  <line x1="1070" y1="55"  x2="1145" y2="250" stroke="#2563eb" stroke-width="0.5" opacity="0.14"/>
+  <line x1="1145" y1="250" x2="1010" y2="460" stroke="#2563eb" stroke-width="0.5" opacity="0.14"/>
+  <line x1="1010" y1="460" x2="1070" y2="55"  stroke="#1d4ed8" stroke-width="0.5" opacity="0.10"/>
+
+  <!-- ─── NETWORK NODES ──────────────────────────────────── -->
+  <!-- Ray endpoint nodes -->
+  <circle cx="130"  cy="55"  r="4.5" fill="#3b82f6" opacity="0.75" filter="url(#glow)"/>
+  <circle cx="1070" cy="55"  r="4.5" fill="#3b82f6" opacity="0.75" filter="url(#glow)"/>
+  <circle cx="55"   cy="250" r="4"   fill="#06b6d4" opacity="0.70" filter="url(#glow)"/>
+  <circle cx="1145" cy="250" r="4"   fill="#06b6d4" opacity="0.70" filter="url(#glow)"/>
+  <circle cx="190"  cy="460" r="4"   fill="#7c3aed" opacity="0.70" filter="url(#glow)"/>
+  <circle cx="1010" cy="460" r="4"   fill="#7c3aed" opacity="0.70" filter="url(#glow)"/>
+
+  <!-- Crystal vertex nodes -->
+  <circle cx="600" cy="58"  r="6"   fill="#93c5fd" opacity="0.95" filter="url(#glow)"/>
+  <circle cx="452" cy="172" r="4"   fill="#60a5fa" opacity="0.80" filter="url(#glow)"/>
+  <circle cx="748" cy="172" r="4.5" fill="#60a5fa" opacity="0.85" filter="url(#glow)"/>
+  <circle cx="392" cy="278" r="3.5" fill="#38bdf8" opacity="0.70" filter="url(#glow)"/>
+  <circle cx="808" cy="278" r="3.5" fill="#38bdf8" opacity="0.70" filter="url(#glow)"/>
+  <circle cx="448" cy="368" r="3"   fill="#3b82f6" opacity="0.65"/>
+  <circle cx="752" cy="368" r="3"   fill="#3b82f6" opacity="0.65"/>
+  <circle cx="512" cy="452" r="3"   fill="#1d4ed8" opacity="0.60"/>
+  <circle cx="688" cy="452" r="3"   fill="#1d4ed8" opacity="0.60"/>
+
+  <!-- Inner core nodes -->
+  <circle cx="600" cy="158" r="5"   fill="#7dd3fc" opacity="0.90" filter="url(#glow)"/>
+  <circle cx="522" cy="248" r="4"   fill="#60a5fa" opacity="0.80" filter="url(#glow)"/>
+  <circle cx="678" cy="248" r="4"   fill="#60a5fa" opacity="0.80" filter="url(#glow)"/>
+  <circle cx="600" cy="304" r="4.5" fill="#38bdf8" opacity="0.75" filter="url(#glow)"/>
+  <circle cx="600" cy="386" r="3.5" fill="#2563eb" opacity="0.65"/>
+
+  <!-- Secondary constellation nodes -->
+  <circle cx="320"  cy="95"  r="3"   fill="#6ea8f8" opacity="0.55"/>
+  <circle cx="260"  cy="185" r="2.5" fill="#06b6d4" opacity="0.50"/>
+  <circle cx="300"  cy="390" r="2.5" fill="#7c3aed" opacity="0.45"/>
+  <circle cx="380"  cy="440" r="2"   fill="#6ea8f8" opacity="0.40"/>
+  <circle cx="880"  cy="95"  r="3"   fill="#6ea8f8" opacity="0.55"/>
+  <circle cx="940"  cy="185" r="2.5" fill="#06b6d4" opacity="0.50"/>
+  <circle cx="900"  cy="390" r="2.5" fill="#7c3aed" opacity="0.45"/>
+  <circle cx="820"  cy="440" r="2"   fill="#6ea8f8" opacity="0.40"/>
+
+  <!-- Amber accent (warmth contrast) -->
+  <circle cx="668" cy="188" r="2.5" fill="#f59e0b" opacity="0.60" filter="url(#glow)"/>
+  <circle cx="545" cy="230" r="2"   fill="#fbbf24" opacity="0.45"/>
+
+  <!-- ─── SCATTERED PARTICLES ───────────────────────────── -->
+  <circle cx="145"  cy="320" r="1.5" fill="#60a5fa" opacity="0.45"/>
+  <circle cx="220"  cy="95"  r="1.5" fill="#06b6d4" opacity="0.40"/>
+  <circle cx="340"  cy="280" r="1.5" fill="#7c3aed" opacity="0.35"/>
+  <circle cx="480"  cy="80"  r="1.5" fill="#60a5fa" opacity="0.42"/>
+  <circle cx="420"  cy="480" r="1.5" fill="#38bdf8" opacity="0.35"/>
+  <circle cx="170"  cy="430" r="1"   fill="#3b82f6" opacity="0.38"/>
+  <circle cx="90"   cy="160" r="1"   fill="#06b6d4" opacity="0.30"/>
+  <circle cx="355"  cy="160" r="1"   fill="#60a5fa" opacity="0.30"/>
+
+  <circle cx="720"  cy="80"  r="1.5" fill="#60a5fa" opacity="0.42"/>
+  <circle cx="860"  cy="280" r="1.5" fill="#7c3aed" opacity="0.35"/>
+  <circle cx="980"  cy="95"  r="1.5" fill="#06b6d4" opacity="0.40"/>
+  <circle cx="1055" cy="320" r="1.5" fill="#60a5fa" opacity="0.45"/>
+  <circle cx="780"  cy="480" r="1.5" fill="#38bdf8" opacity="0.35"/>
+  <circle cx="1030" cy="430" r="1"   fill="#3b82f6" opacity="0.38"/>
+  <circle cx="1110" cy="160" r="1"   fill="#06b6d4" opacity="0.30"/>
+  <circle cx="845"  cy="160" r="1"   fill="#60a5fa" opacity="0.30"/>
+
+  <circle cx="600"  cy="490" r="1.5" fill="#3b82f6" opacity="0.30"/>
+  <circle cx="560"  cy="470" r="1"   fill="#06b6d4" opacity="0.25"/>
+  <circle cx="640"  cy="470" r="1"   fill="#06b6d4" opacity="0.25"/>
+  <circle cx="480"  cy="160" r="1"   fill="#7c3aed" opacity="0.28"/>
+  <circle cx="720"  cy="160" r="1"   fill="#7c3aed" opacity="0.28"/>
+
+  <!-- ─── VIGNETTE ───────────────────────────────────────── -->
+  <rect width="1200" height="500" fill="url(#vignette)"/>
+
+</svg>

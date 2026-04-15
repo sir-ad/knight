@@ -53,6 +53,8 @@ code {
   padding: 1rem 0 4rem;
 }
 
+/* ── Nav ── */
+
 .topbar {
   display: flex;
   align-items: center;
@@ -85,6 +87,8 @@ code {
   color: var(--muted);
 }
 
+/* ── Hero ── */
+
 .hero-content {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -110,7 +114,7 @@ code {
 .hero-copy h1 {
   font-size: clamp(2.8rem, 6vw, 5.2rem);
   line-height: 0.94;
-  max-width: 11ch;
+  max-width: 13ch;
 }
 
 .hero-text {
@@ -176,6 +180,8 @@ code {
   margin-right: 0.65rem;
 }
 
+/* ── Hero card ── */
+
 .hero-card {
   position: relative;
 }
@@ -238,6 +244,24 @@ code {
   font-size: 0.95rem;
 }
 
+/* ── Banner ── */
+
+.hero-banner {
+  margin-top: 3rem;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(20, 33, 61, 0.18);
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  line-height: 0;
+}
+
+.hero-banner img {
+  width: 100%;
+  display: block;
+}
+
+/* ── Sections ── */
+
 .section {
   padding: 2.5rem 0;
 }
@@ -251,6 +275,8 @@ code {
   font-size: clamp(2rem, 4vw, 3.25rem);
   line-height: 1;
 }
+
+/* ── Feature grid ── */
 
 .feature-grid,
 .repo-grid {
@@ -286,6 +312,8 @@ code {
   line-height: 1.65;
 }
 
+/* ── Portal pills ── */
+
 .pill-grid {
   display: flex;
   flex-wrap: wrap;
@@ -301,14 +329,148 @@ code {
   font-size: 0.95rem;
 }
 
+.pill-grid .pill-fallback {
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--emerald);
+}
+
 .support-note {
   margin-top: 1rem;
 }
+
+/* ── One-liner install ── */
+
+.oneliner-block {
+  margin-bottom: 1.8rem;
+  padding: 1.6rem 1.8rem;
+  border: 1px solid rgba(20, 33, 61, 0.09);
+  border-radius: 1.4rem;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 24px rgba(20, 33, 61, 0.05);
+}
+
+.oneliner-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-dark);
+  margin-bottom: 0.9rem;
+  font-weight: 700;
+}
+
+.oneliner-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.oneliner-pre {
+  flex: 1;
+  margin: 0;
+  padding: 1rem 1.2rem;
+  border-radius: 0.9rem;
+  background: #111827;
+  color: #f8fafc;
+  overflow-x: auto;
+  font-size: 0.95rem;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.copy-btn:hover {
+  background: white;
+  transform: translateY(-1px);
+}
+
+.oneliner-note {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── Install grid ── */
 
 .install-layout {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.install-card ul,
+.install-card ol {
+  margin: 0;
+  padding-left: 1.3rem;
+}
+
+.install-card li {
+  margin-bottom: 0.5rem;
+}
+
+/* ── Manual details ── */
+
+.manual-details {
+  margin-top: 1.4rem;
+}
+
+.manual-details details {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.manual-details summary {
+  padding: 0.9rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--muted);
+  user-select: none;
+  list-style: none;
+}
+
+.manual-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.manual-details summary::before {
+  content: "+ ";
+  color: var(--accent);
+}
+
+.manual-details[open] summary::before {
+  content: "− ";
+}
+
+.manual-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem 1.2rem 1.2rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.manual-grid h4 {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
 }
 
 pre {
@@ -319,6 +481,14 @@ pre {
   background: #111827;
   color: #f8fafc;
 }
+
+/* ── Repo section ── */
+
+.repo-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* ── Footer ── */
 
 .footer {
   display: flex;
@@ -334,10 +504,13 @@ pre {
   gap: 1rem;
 }
 
+/* ── Responsive ── */
+
 @media (max-width: 960px) {
   .hero-content,
   .feature-grid,
   .install-layout,
+  .manual-grid,
   .repo-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -354,11 +527,21 @@ pre {
   .hero-content,
   .feature-grid,
   .install-layout,
+  .manual-grid,
   .repo-grid {
     grid-template-columns: 1fr;
   }
 
   .hero-copy h1 {
     max-width: none;
+  }
+
+  .oneliner-row {
+    flex-direction: column;
+  }
+
+  .copy-btn {
+    align-self: flex-start;
+    padding: 0.65rem 1rem;
   }
 }
