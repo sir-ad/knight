@@ -521,7 +521,7 @@ describe('autofill integration', () => {
         expect.objectContaining({
           type: 'CAREERFLOW_SHOW_REVIEW',
         }),
-        '*'
+        window.location.origin
       );
 
       postMessageSpy.mockRestore();

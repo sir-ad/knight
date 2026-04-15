@@ -177,31 +177,35 @@ async function syncEmails(): Promise<{ processed: number; updated: number }> {
   let updated = 0
 
   for (const messageRef of messageRefs) {
-    const message = await gmailClient.getMessage(messageRef.id)
-    const result = await classifyEmail({
-      subject: message.subject,
-      from: message.from,
-      body: message.body,
-    })
+    try {
+      const message = await gmailClient.getMessage(messageRef.id)
+      const result = await classifyEmail({
+        subject: message.subject,
+        from: message.from,
+        body: message.body,
+      })
 
-    if (result.classification === "other") {
-      continue
+      if (result.classification === "other") {
+        continue
+      }
+
+      await db.upsertApplicationByThread(message.threadId, {
+        company: result.data.company,
+        role: result.data.role,
+        status: mapClassificationToStatus(result.classification),
+        portalType: detectPortalFromSender(message.from),
+        jdUrl: undefined,
+        emailThreadId: message.threadId,
+        recruiterEmail: message.from,
+        nextAction: result.data.next_action || undefined,
+        interviewDate: result.data.interview_date,
+        notes: message.subject,
+      })
+
+      updated++
+    } catch (error) {
+      console.warn(`[syncEmails] skipping message ${messageRef.id}:`, error)
     }
-
-    await db.upsertApplicationByThread(message.threadId, {
-      company: result.data.company,
-      role: result.data.role,
-      status: mapClassificationToStatus(result.classification),
-      portalType: detectPortalFromSender(message.from),
-      jdUrl: undefined,
-      emailThreadId: message.threadId,
-      recruiterEmail: message.from,
-      nextAction: result.data.next_action || undefined,
-      interviewDate: result.data.interview_date,
-      notes: message.subject,
-    })
-
-    updated++
   }
 
   const now = new Date().toISOString()

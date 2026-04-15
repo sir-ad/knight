@@ -59,14 +59,8 @@ async function bootstrap() {
     return
   }
 
-  const profile = await storageManager.getProfile()
-  if (!profile) {
-    return
-  }
-
-  autofillController.setProfile(profile)
-  autofillController.init()
-
+  // Always notify the background when an ATS is detected so the badge shows
+  // even if the user hasn't uploaded a resume yet.
   await notifyBackground({
     type: "ATS_DETECTED",
     payload: {
@@ -74,6 +68,14 @@ async function bootstrap() {
       url: window.location.href,
     },
   })
+
+  const profile = await storageManager.getProfile()
+  if (!profile) {
+    return
+  }
+
+  autofillController.setProfile(profile)
+  autofillController.init()
 
   injectAutofillOverlay({
     atsType: adapter.name,

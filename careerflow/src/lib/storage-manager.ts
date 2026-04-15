@@ -212,7 +212,7 @@ export class ChromeStorageManager {
   }
 
   async getProfile(): Promise<Profile | null> {
-    await this.migrateLegacyData()
+    await runMigrationOnce()
     const result = await getLocalStorage<Record<string, Profile | undefined>>(
       STORAGE_KEYS.PROFILE
     )
@@ -257,7 +257,7 @@ export class ChromeStorageManager {
   }
 
   async getProfileDraft(): Promise<ProfileDraft | null> {
-    await this.migrateLegacyData()
+    await runMigrationOnce()
     const result = await getLocalStorage<Record<string, ProfileDraft | undefined>>(
       STORAGE_KEYS.PROFILE_DRAFT
     )
@@ -288,7 +288,7 @@ export class ChromeStorageManager {
   }
 
   async getSettings(): Promise<ExtensionSettings> {
-    await this.migrateLegacyData()
+    await runMigrationOnce()
     const result = await getLocalStorage<Record<string, Partial<ExtensionSettings> | undefined>>(
       STORAGE_KEYS.SETTINGS
     )
@@ -314,7 +314,7 @@ export class ChromeStorageManager {
   }
 
   async getApplications(): Promise<ApplicationRecord[]> {
-    await this.migrateLegacyData()
+    await runMigrationOnce()
     const result = await getLocalStorage<Record<string, ApplicationRecord[] | undefined>>(
       STORAGE_KEYS.APPLICATIONS
     )
@@ -412,3 +412,15 @@ export class ChromeStorageManager {
 }
 
 export const storageManager = new ChromeStorageManager()
+
+// Module-level flag so migrateLegacyData() runs at most once per service-worker
+// lifetime. Without this guard, every getProfile/getSettings/getApplications call
+// would re-read all storage keys unnecessarily.
+let _migrationDone = false
+
+async function runMigrationOnce(): Promise<void> {
+  if (_migrationDone) return
+  await storageManager.migrateLegacyData()
+  _migrationDone = true
+}
+
