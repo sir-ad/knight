@@ -1,3 +1,5 @@
+<div align="center">
+
 # Knight
 
 [![CI](https://github.com/sir-ad/knight/actions/workflows/ci.yml/badge.svg)](https://github.com/sir-ad/knight/actions/workflows/ci.yml)
@@ -8,13 +10,23 @@
 [![Node 20+](https://img.shields.io/badge/Node-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
-**Privacy-first Chrome extension for job application automation.**
+<br/>
 
-Knight parses your resume locally, autofills 15+ ATS portals with a review step before touching any field, tracks every application on your machine, and syncs Gmail read-only to catch interview invites and rejections — no data ever leaves your machine unless you explicitly configure a cloud provider.
+![Knight](./assets/banner.svg)
 
-![Knight icon](./careerflow/assets/icon128.png)
+<br/>
+
+### The job application layer you've been missing.
+
+Every application is the same form. Different URL, same twenty fields — name, email, phone, work history, education — pasted by hand into Workday, Greenhouse, Lever, and a dozen other portals that share nothing between them. Most autofill tools break on anything beyond a basic text input, or quietly ship your resume to a hosted AI pipeline to do the parsing.
+
+**Knight fixes this without the tradeoffs.** Your resume is parsed entirely on your own machine by a local Python service. Field mapping runs through whichever LLM you choose — local Ollama or a cloud provider you configure. Before a single character is written to any form, you see a diff of every proposed change and confirm it. Your data stays on your device.
+
+<br/>
 
 🌐 **[sir-ad.github.io/knight](https://sir-ad.github.io/knight/)**
+
+</div>
 
 ---
 
