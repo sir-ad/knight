@@ -1,4 +1,5 @@
 import type { LLMConfig, LLMMessage, LLMProviderInterface } from "./types"
+import { fetchWithTimeout } from "./fetch-with-timeout"
 
 export class OpenAIProvider implements LLMProviderInterface {
   name = "openai" as const
@@ -16,12 +17,21 @@ export class OpenAIProvider implements LLMProviderInterface {
 
   private endpoint = "https://api.openai.com/v1"
 
+  private extractChoiceContent(data: any, context: string): string {
+    const content = data.choices?.[0]?.message?.content
+    if (!content) {
+      const finishReason = data.choices?.[0]?.finish_reason ?? "unknown"
+      throw new Error(`OpenAI returned no content in ${context} (finish_reason: ${finishReason})`)
+    }
+    return content
+  }
+
   async generate(config: LLMConfig, prompt: string): Promise<string> {
     if (!config.apiKey) {
       throw new Error("OpenAI API key required")
     }
 
-    const response = await fetch(`${this.endpoint}/chat/completions`, {
+    const response = await fetchWithTimeout(`${this.endpoint}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,12 +46,12 @@ export class OpenAIProvider implements LLMProviderInterface {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json().catch(() => ({}))
       throw new Error(error.error?.message || `OpenAI API error: ${response.status}`)
     }
 
     const data = await response.json()
-    return data.choices[0].message.content
+    return this.extractChoiceContent(data, "generate")
   }
 
   async generateStructured(config: LLMConfig, prompt: string): Promise<any> {
@@ -49,7 +59,7 @@ export class OpenAIProvider implements LLMProviderInterface {
       throw new Error("OpenAI API key required")
     }
 
-    const response = await fetch(`${this.endpoint}/chat/completions`, {
+    const response = await fetchWithTimeout(`${this.endpoint}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -64,15 +74,16 @@ export class OpenAIProvider implements LLMProviderInterface {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json().catch(() => ({}))
       throw new Error(error.error?.message || `OpenAI API error: ${response.status}`)
     }
 
     const data = await response.json()
-    
+    const content = this.extractChoiceContent(data, "generateStructured")
+
     try {
-      return JSON.parse(data.choices[0].message.content)
-    } catch (error) {
+      return JSON.parse(content)
+    } catch {
       throw new Error("Invalid JSON response from OpenAI")
     }
   }
@@ -82,7 +93,7 @@ export class OpenAIProvider implements LLMProviderInterface {
       throw new Error("OpenAI API key required")
     }
 
-    const response = await fetch(`${this.endpoint}/chat/completions`, {
+    const response = await fetchWithTimeout(`${this.endpoint}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -97,19 +108,19 @@ export class OpenAIProvider implements LLMProviderInterface {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json().catch(() => ({}))
       throw new Error(error.error?.message || `OpenAI API error: ${response.status}`)
     }
 
     const data = await response.json()
-    return data.choices[0].message.content
+    return this.extractChoiceContent(data, "generateChat")
   }
 
   async testConnection(config: LLMConfig): Promise<boolean> {
     if (!config.apiKey) return false
 
     try {
-      const response = await fetch(`${this.endpoint}/models`, {
+      const response = await fetchWithTimeout(`${this.endpoint}/models`, {
         headers: { "Authorization": `Bearer ${config.apiKey}` }
       })
       if (!response.ok) {
@@ -130,7 +141,7 @@ export class OpenAIProvider implements LLMProviderInterface {
       return this.models
     }
 
-    const response = await fetch(`${this.endpoint}/models`, {
+    const response = await fetchWithTimeout(`${this.endpoint}/models`, {
       headers: { Authorization: `Bearer ${config.apiKey}` },
     })
 

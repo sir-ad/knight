@@ -1,11 +1,12 @@
 import type { LLMConfig, LLMMessage, LLMProviderInterface } from "./types"
+import { fetchWithTimeout } from "./fetch-with-timeout"
 
 export class AnthropicProvider implements LLMProviderInterface {
   name = "anthropic" as const
   models = [
-    "claude-opus-4-6",
-    "claude-sonnet-4-6",
-    "claude-haiku-4-5-20251001",
+    "claude-opus-4-5",
+    "claude-sonnet-4-5",
+    "claude-haiku-3-5",
     "claude-3-5-sonnet-20241022",
     "claude-3-5-haiku-20241022"
   ]
@@ -14,12 +15,21 @@ export class AnthropicProvider implements LLMProviderInterface {
 
   private endpoint = "https://api.anthropic.com/v1"
 
+  private extractTextContent(data: any, context: string): string {
+    const text = data.content?.[0]?.text
+    if (!text) {
+      const stopReason = data.stop_reason ?? "unknown"
+      throw new Error(`Anthropic returned no content in ${context} (stop_reason: ${stopReason})`)
+    }
+    return text
+  }
+
   async generate(config: LLMConfig, prompt: string): Promise<string> {
     if (!config.apiKey) {
       throw new Error("Anthropic API key required")
     }
 
-    const response = await fetch(`${this.endpoint}/messages`, {
+    const response = await fetchWithTimeout(`${this.endpoint}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,23 +44,23 @@ export class AnthropicProvider implements LLMProviderInterface {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json().catch(() => ({}))
       throw new Error(error.error?.message || `Anthropic API error: ${response.status}`)
     }
 
     const data = await response.json()
-    return data.content[0].text
+    return this.extractTextContent(data, "generate")
   }
 
   async generateStructured(config: LLMConfig, prompt: string): Promise<any> {
     const systemPrompt = "You are a JSON-only response bot. Always respond with valid JSON, no other text.\n\n"
     const fullPrompt = systemPrompt + prompt
-    
+
     const result = await this.generate(config, fullPrompt)
-    
+
     try {
       return JSON.parse(result)
-    } catch (error) {
+    } catch {
       throw new Error("Invalid JSON response from Anthropic")
     }
   }
@@ -70,7 +80,7 @@ export class AnthropicProvider implements LLMProviderInterface {
 
     const systemMessage = messages.find(m => m.role === "system")
 
-    const response = await fetch(`${this.endpoint}/messages`, {
+    const response = await fetchWithTimeout(`${this.endpoint}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -86,19 +96,19 @@ export class AnthropicProvider implements LLMProviderInterface {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json().catch(() => ({}))
       throw new Error(error.error?.message || `Anthropic API error: ${response.status}`)
     }
 
     const data = await response.json()
-    return data.content[0].text
+    return this.extractTextContent(data, "generateChat")
   }
 
   async testConnection(config: LLMConfig): Promise<boolean> {
     if (!config.apiKey) return false
 
     try {
-      const response = await fetch(`${this.endpoint}/messages`, {
+      const response = await fetchWithTimeout(`${this.endpoint}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,7 +129,7 @@ export class AnthropicProvider implements LLMProviderInterface {
         throw new Error("API key does not have permission to access this model")
       }
 
-    return response.ok || response.status === 400
+      return response.ok || response.status === 400
     } catch (error) {
       if (error instanceof Error) throw error
       return false

@@ -1,4 +1,5 @@
-import type { LLMConfig, LLMMessage, LLMProviderInterface, LLMResponse } from "./types"
+import type { LLMConfig, LLMMessage, LLMProviderInterface } from "./types"
+import { fetchWithTimeout } from "./fetch-with-timeout"
 
 const FALLBACK_MODELS = [
   "llama3.2:3b",
@@ -31,7 +32,7 @@ export class OllamaProvider implements LLMProviderInterface {
   async fetchInstalledModels(config: LLMConfig): Promise<string[]> {
     const endpoint = config.endpoint || "http://localhost:11434"
     try {
-      const response = await fetch(`${endpoint}/api/tags`)
+      const response = await fetchWithTimeout(`${endpoint}/api/tags`, {})
       if (response.ok) {
         const data = await response.json()
         if (data.models && Array.isArray(data.models)) {
@@ -52,7 +53,7 @@ export class OllamaProvider implements LLMProviderInterface {
 
   async generate(config: LLMConfig, prompt: string): Promise<string> {
     const endpoint = config.endpoint || "http://localhost:11434"
-    const response = await fetch(`${endpoint}/api/generate`, {
+    const response = await fetchWithTimeout(`${endpoint}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -71,12 +72,15 @@ export class OllamaProvider implements LLMProviderInterface {
     }
 
     const data = await response.json()
+    if (!data.response) {
+      throw new Error("Ollama generate returned no response")
+    }
     return data.response
   }
 
   async generateStructured(config: LLMConfig, prompt: string): Promise<any> {
     const endpoint = config.endpoint || "http://localhost:11434"
-    const response = await fetch(`${endpoint}/api/generate`, {
+    const response = await fetchWithTimeout(`${endpoint}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -97,15 +101,21 @@ export class OllamaProvider implements LLMProviderInterface {
     const data = await response.json()
 
     try {
+      if (!data.response) {
+        throw new Error("Ollama generate returned no response")
+      }
       return JSON.parse(data.response)
     } catch (error) {
-      throw new Error("Invalid JSON response from Ollama")
+      if (error instanceof SyntaxError) {
+        throw new Error("Invalid JSON response from Ollama")
+      }
+      throw error
     }
   }
 
   async generateChat(config: LLMConfig, messages: LLMMessage[]): Promise<string> {
     const endpoint = config.endpoint || "http://localhost:11434"
-    const response = await fetch(`${endpoint}/api/chat`, {
+    const response = await fetchWithTimeout(`${endpoint}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -124,13 +134,17 @@ export class OllamaProvider implements LLMProviderInterface {
     }
 
     const data = await response.json()
-    return data.message.content
+    const content = data.message?.content
+    if (!content) {
+      throw new Error("Ollama chat returned no message content")
+    }
+    return content
   }
 
   async testConnection(config: LLMConfig): Promise<boolean> {
     const endpoint = config.endpoint || "http://localhost:11434"
     try {
-      const response = await fetch(`${endpoint}/api/tags`)
+      const response = await fetchWithTimeout(`${endpoint}/api/tags`, {})
       if (response.ok) {
         const data = await response.json()
         if (data.models && Array.isArray(data.models)) {
