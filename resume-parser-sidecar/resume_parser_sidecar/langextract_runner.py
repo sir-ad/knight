@@ -228,6 +228,14 @@ def _serialize_extractions(extractions: list[Extraction]) -> list[dict[str, Any]
   ]
 
 
+_SKILL_BUCKET_MAP: dict[str, str] = {
+  "technical": "technical",
+  "soft": "soft",
+  "tool": "tools",
+  "language": "languages",
+}
+
+
 def _apply_extraction(profile: dict[str, Any], extraction: Extraction) -> None:
   attributes = extraction.attributes or {}
   extraction_class = extraction.extraction_class
@@ -274,7 +282,10 @@ def _apply_extraction(profile: dict[str, Any], extraction: Extraction) -> None:
     return
 
   if extraction_class.startswith("skill_"):
-    skill_bucket = extraction_class.replace("skill_", "")
+    raw_bucket = extraction_class.replace("skill_", "")
+    skill_bucket = _SKILL_BUCKET_MAP.get(raw_bucket, raw_bucket)
+    if skill_bucket not in profile["skills"]:
+      profile["skills"][skill_bucket] = []
     profile["skills"][skill_bucket].extend(_string_list(attributes.get("values")))
     return
 

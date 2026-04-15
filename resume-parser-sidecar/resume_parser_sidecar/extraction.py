@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 from dataclasses import dataclass
 from io import BytesIO
+import os
 import re
 import tempfile
 from pathlib import Path
@@ -123,10 +124,18 @@ def _extract_pdf_ocr(content: bytes) -> str:
 
 
 def _extract_docx_text(content: bytes) -> str:
-  with tempfile.NamedTemporaryFile(suffix=".docx", delete=True) as temp_file:
-    temp_file.write(content)
-    temp_file.flush()
-    return _normalize_text(docx2txt.process(temp_file.name))
+  # delete=False so the file handle is fully closed before docx2txt opens it.
+  # This is required on Windows, where a file opened with delete=True cannot
+  # be opened by another process while the NamedTemporaryFile handle is open.
+  temp_path: str | None = None
+  try:
+    with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as temp_file:
+      temp_file.write(content)
+      temp_path = temp_file.name
+    return _normalize_text(docx2txt.process(temp_path))
+  finally:
+    if temp_path and os.path.exists(temp_path):
+      os.unlink(temp_path)
 
 
 def _extract_txt_text(content: bytes) -> str:
